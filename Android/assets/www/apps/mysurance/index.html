@@ -10,10 +10,12 @@
 <meta name="apple-touch-fullscreen" content="yes" />
 <meta name="format-detection" content="telephone=yes" />
 
-
 <title>Mysurance Demo</title>
+
+<link rel="stylesheet" href="themes/android/mysurance.css" type="text/css" media="screen" title="no title" charset="utf-8">
+<link rel="stylesheet" href="../../libs/dojo/dojox/mobile/themes/android/android.css" type="text/css" media="screen" title="no title" charset="utf-8">
+
 <script type="text/javascript" charset="utf-8" src="../../libs/phonegap.0.9.4.js"></script>
-<!-- script type="text/javascript" src="../../libs/dojo/dojo/dojo.js" djConfig="parseOnLoad:true"></script -->
 <script type="text/javascript" src="../../libs/dojo.js" djConfig="parseOnLoad:true"></script>
 <script type="text/javascript" src="storageDojo.js"></script>
 <script language="JavaScript" type="text/javascript">
@@ -43,11 +45,11 @@ function Mysurance() {
 	// Set device type
 	if (this.platform.indexOf("Linux") > -1) {
 		isAndroid = true;
-		debugLog("Android device");
+		console.log("Android device");
 	}
 	else if (this.platform.indexOf("iPhone") > -1) {
 		isIPhone = true;
-		debugLog("iPhone device");
+//		console.log("iPhone device");
 	}
 }
 var mysurance = new Mysurance();
@@ -57,37 +59,11 @@ var mysurance = new Mysurance();
  */
 function onBodyLoad()
 {
-	debugLog("onBodyLoad()");
-	var head = window.document.getElementsByTagName('head')[0];
-
+	console.log("onBodyLoad()");
+	
 	// Listen for PhoneGap framework to finish init
 	document.addEventListener("deviceready",onDeviceReady,false);
-
-	// Select the appropriate phonegap.js and css
-	var cssLinks = new Array();
-	var phoneGapJS ="";
-	if (isAndroid) {
-		cssLinks[0] = "themes/android/mysurance.css";
-		cssLinks[1] = "../../libs/dojo/dojox/mobile/themes/android/android.css";
-	}
-	else if (isIPhone) {
-		cssLinks[0] = "themes/iphone/mysurance.css";
-		cssLinks[1] = "../../libs/dojo/dojox/mobile/themes/iphone/iphone.css";
-	}
-
-	// Select the appropriate css
-	try {
-		for(var i=0; i<cssLinks.length; i++){
-			var link = dojo.doc.createElement("link");
-			link.type = "text/css";
-			link.rel = "stylesheet";
-			link.href = cssLinks[i];
-			head.appendChild(link);
-		}
-	} catch (e) {
-		debugLog("Error setting css: "+e);
-	}
-
+	
 	// Listen for back button
 	document.addEventListener("backKeyDown", backPressed);
 
@@ -106,7 +82,7 @@ function onBodyLoad()
 		dijit.byId('accLocation').onBeforeTransitionOut = leavingAccLocation;
 		dijit.byId('accPhotos').onBeforeTransitionIn = enteringAccPhotos;
 	} catch (e) {
-		debugLog("  - error hooking transitions: "+e);
+		console.log("  - error hooking transitions: "+e);
 	}
 }
 
@@ -114,9 +90,9 @@ function onBodyLoad()
  * Entering home screen
  */
 function enteringHome(moveTo, dir, transition, context, method) {
-	//debugLog("leavingHome(moveTo="+moveTo+" dir="+dir+" transition="+transition+" method="+method);
+	//console.log("leavingHome(moveTo="+moveTo+" dir="+dir+" transition="+transition+" method="+method);
 	if (isAndroid) {
-		//window.DroidGap.setBackButtonBehavior(false);
+		window.BackButton.reset();
 	}
 	mysurance.cur = 'home';
 	mysurance.back = null;
@@ -125,9 +101,9 @@ function enteringHome(moveTo, dir, transition, context, method) {
  * Leaving home screen
  */
 function leavingHome(moveTo, dir, transition, context, method) {
-	//debugLog("leavingHome(moveTo="+moveTo+" dir="+dir+" transition="+transition+" method="+method);
+	//console.log("leavingHome(moveTo="+moveTo+" dir="+dir+" transition="+transition+" method="+method);
 	if (isAndroid) {
-		//window.DroidGap.setBackButtonBehavior(true);
+		window.BackButton.override();
 	}
 }
 
@@ -135,7 +111,7 @@ function leavingHome(moveTo, dir, transition, context, method) {
  * Entering my info screen
  */
 function enteringMyInfo(moveTo, dir, transition, context, method) {
-	//debugLog("enteringMyInfo(moveTo="+moveTo+" dir="+dir+" transition="+transition+" method="+method);
+	//console.log("enteringMyInfo(moveTo="+moveTo+" dir="+dir+" transition="+transition+" method="+method);
 	mysurance.cur = 'myInfo';
 	mysurance.back = 'home';
 }
@@ -144,7 +120,7 @@ function enteringMyInfo(moveTo, dir, transition, context, method) {
  * Leaving my info screen
  */
 function leavingMyInfo(moveTo, dir, transition, context, method) {
-	//debugLog("leavingMyInfo(moveTo="+moveTo+" dir="+dir+" transition="+transition+" method="+method);
+	//console.log("leavingMyInfo(moveTo="+moveTo+" dir="+dir+" transition="+transition+" method="+method);
 	storeProfile(true);
 }
 
@@ -152,7 +128,7 @@ function leavingMyInfo(moveTo, dir, transition, context, method) {
  * Entering accident toolkit screen
  */
 function enteringAccHelp(moveTo, dir, transition, context, method) {
-	//debugLog("enteringAccHelp(moveTo="+moveTo+" dir="+dir+" transition="+transition+" method="+method);
+	//console.log("enteringAccHelp(moveTo="+moveTo+" dir="+dir+" transition="+transition+" method="+method);
 	mysurance.cur = 'accHelp';
 	mysurance.back = 'home';
 }
@@ -161,7 +137,7 @@ function enteringAccHelp(moveTo, dir, transition, context, method) {
  * Entering add vehicle screen
  */
 function enteringAddVehicle(moveTo, dir, transition, context, method) {
-	//debugLog("enteringAddVehicle(moveTo="+moveTo+" dir="+dir+" transition="+transition+" method="+method);
+	//console.log("enteringAddVehicle(moveTo="+moveTo+" dir="+dir+" transition="+transition+" method="+method);
 	mysurance.cur = 'addVehicle';
 	mysurance.back = 'myInfo';
 }
@@ -170,7 +146,7 @@ function enteringAddVehicle(moveTo, dir, transition, context, method) {
  * Leaving add vehicle screen
  */
 function leavingAddVehicle(moveTo, dir, transition, context, method) {
-	//debugLog("leavingAddVehicle(moveTo="+moveTo+" dir="+dir+" transition="+transition+" method="+method);
+	//console.log("leavingAddVehicle(moveTo="+moveTo+" dir="+dir+" transition="+transition+" method="+method);
 	storeVehicle();
 	loadProfile(true);
 	clearVehicleForm();
@@ -180,7 +156,7 @@ function leavingAddVehicle(moveTo, dir, transition, context, method) {
  * Entering accident info screen
  */
 function enteringAccInfo(moveTo, dir, transition, context, method) {
-	//debugLog("enteringAccInfo(moveTo="+moveTo+" dir="+dir+" transition="+transition+" method="+method);
+	//console.log("enteringAccInfo(moveTo="+moveTo+" dir="+dir+" transition="+transition+" method="+method);
 	mysurance.cur = 'accInfo';
 	mysurance.back = 'accHelp';
 	loadAccidentInfo();
@@ -190,7 +166,7 @@ function enteringAccInfo(moveTo, dir, transition, context, method) {
  * Leaving accident info screen
  */
 function leavingAccInfo(moveTo, dir, transition, context, method) {
-	//debugLog("leavingAccLocation(moveTo="+moveTo+" dir="+dir+" transition="+transition+" method="+method);
+	//console.log("leavingAccLocation(moveTo="+moveTo+" dir="+dir+" transition="+transition+" method="+method);
 	storeAccidentInfo();
 }
 
@@ -198,7 +174,7 @@ function leavingAccInfo(moveTo, dir, transition, context, method) {
  * Entering accident location screen
  */
 function enteringAccLocation(moveTo, dir, transition, context, method) {
-	//debugLog("enteringAccLocation(moveTo="+moveTo+" dir="+dir+" transition="+transition+" method="+method);
+	//console.log("enteringAccLocation(moveTo="+moveTo+" dir="+dir+" transition="+transition+" method="+method);
 	mysurance.cur = 'accLocation';
 	mysurance.back = 'accHelp';
 	loadLocation();
@@ -208,7 +184,7 @@ function enteringAccLocation(moveTo, dir, transition, context, method) {
  * Leaving accident location screen
  */
 function leavingAccLocation(moveTo, dir, transition, context, method) {
-	//debugLog("leavingAccLocation(moveTo="+moveTo+" dir="+dir+" transition="+transition+" method="+method);
+	//console.log("leavingAccLocation(moveTo="+moveTo+" dir="+dir+" transition="+transition+" method="+method);
 	storeLocation();
 }
 
@@ -216,7 +192,7 @@ function leavingAccLocation(moveTo, dir, transition, context, method) {
  * Entering accident photo screen
  */
 function enteringAccPhotos(moveTo, dir, transition, context, method) {
-	//debugLog("enteringAccPhotos(moveTo="+moveTo+" dir="+dir+" transition="+transition+" method="+method);
+	//console.log("enteringAccPhotos(moveTo="+moveTo+" dir="+dir+" transition="+transition+" method="+method);
 	mysurance.cur = 'accPhotos';
 	mysurance.back = 'accHelp';
 	loadPhotos();
@@ -226,8 +202,8 @@ function enteringAccPhotos(moveTo, dir, transition, context, method) {
  * Back button was pressed. Show previous view.
  */
 function backPressed(e) {
-	debugLog("backPressed: "); //+dumpObj(e, '', ' ', 1));
-	//debugLog (" - cur="+mysurance.cur+" going to back="+mysurance.back);
+	console.log("backPressed: "); //+dumpObj(e, '', ' ', 1));
+	//console.log (" - cur="+mysurance.cur+" going to back="+mysurance.back);
 	if (mysurance.back && mysurance.cur) {
 		el = dijit.byId(mysurance.cur);
 		el.performTransition(mysurance.back, -1, 'slide');
@@ -239,10 +215,9 @@ function backPressed(e) {
  */
 function onDeviceReady()
 {
-	debugLog("onDeviceReady()");
-	//debugLog(" device="+dumpObj(device, '', ' ', 1));
+	console.log("onDeviceReady()");
+	//console.log(" device="+dumpObj(device, '', ' ', 1));
 	mysurance.isPhonegap = true;
-	
     window.BackButton.override();
 
 	// Open database for our app
@@ -255,28 +230,15 @@ function onDeviceReady()
  * NOTE: This doesn't seem to be called?
  */
 function onBodyUnload() {
-	debugLog("onBodyUnload()");
+	console.log("onBodyUnload()");
 	return true;
-}
-
-/**
- * Generic function so will run in browser (using console.log) and in native via debug.log
- */
-function debugLog(message) {
-	if (window.debug ){
-		debug.log(message);
-	}else if (console.log){
-		console.log(message);
-	}else {
-		alert(message);
-	}
 }
 
 /**
  * Set flag indicating that profile has been modified
  */
 function profileChanged() {
-	debugLog("profileChanged()");
+	console.log("profileChanged()");
 	mysurance.profileChanged = true;
 }
 
@@ -284,7 +246,7 @@ function profileChanged() {
  * Set flag indicating that vehicle has been modified
  */
 function vehicleChanged() {
-	debugLog("vehicleChanged()");
+	console.log("vehicleChanged()");
 	mysurance.vehicleChanged = true;
 }
 
@@ -292,7 +254,7 @@ function vehicleChanged() {
  * The Add Vehicle menu item was clicked
  */
 function addVehicleClicked() {
-	debugLog("addVehicleClicked()");
+	console.log("addVehicleClicked()");
 
 	// Save changes to profile
 	storeProfile(true);
@@ -307,9 +269,9 @@ function addVehicleClicked() {
  * @param el		The el of the vehicle item
  */
 function viewVehicleClicked(el) {
-	debugLog("viewVehicleClicked("+el+")");
+	console.log("viewVehicleClicked("+el+")");
 	var id = el.getAttribute("vid");
-	debugLog(" - id="+id);
+	console.log(" - id="+id);
 
 	// Save changes to profile
 	storeProfile(true);
@@ -326,7 +288,7 @@ function viewVehicleClicked(el) {
  * Set flag indicating that accident location has been modified
  */
 function locationChanged() {
-	debugLog("locationChanged()");
+	console.log("locationChanged()");
 	mysurance.locationChanged = true;
 }
 
@@ -334,7 +296,7 @@ function locationChanged() {
  * Set flag indicating that accident driver info has been modified
  */
 function accInfoChanged() {
-	debugLog("accInfoChanged()");
+	console.log("accInfoChanged()");
 	mysurance.accInfoChanged = true;
 }
 
@@ -401,7 +363,7 @@ function accHelpClicked() {
  * Display locate police prompt and panel if answered OK to prompt
  */
 function checkPolice() {
-	debugLog("checkPolice()");
+	console.log("checkPolice()");
 	if (isAndroid) {
 		window.location = "geo:0,0?q=police";
 	}
@@ -417,7 +379,7 @@ function checkPolice() {
  * Display map of towing companies
  */
 function mapTowing() {
-	debugLog("mapTowing()");
+	console.log("mapTowing()");
 	if (isAndroid) {
 		window.location = "geo:0,0?q=towing";
 	}
@@ -442,14 +404,14 @@ function iphoneMapQuery(queryStr){
 	try {
 	    navigator.geolocation.getCurrentPosition(
 	    function(loc){
-			debugLog(" - current location="+loc.coords.latitude+","+loc.coords.longitude);
+			console.log(" - current location="+loc.coords.latitude+","+loc.coords.longitude);
 			PhoneGap.exec("Map.open", {query: "q="+queryStr +"&near=" +loc.coords.latitude+","+loc.coords.longitude});
 		},
 		function() {
-			debugLog(" - failed getting current location");
+			console.log(" - failed getting current location");
 	    });
 	} catch (e) {
-		debugLog(" - error getting current location: " + e);
+		console.log(" - error getting current location: " + e);
 	}
 }
 
@@ -457,22 +419,22 @@ function iphoneMapQuery(queryStr){
  * Use current location button clicked
  */
 function onButtonLocClicked(e) {
-	debugLog("onButtonLocClicked()");
+	console.log("onButtonLocClicked()");
 	try {
 		navigator.geolocation.getCurrentPosition(
 		function(loc) {
-			debugLog("Current location: ("+loc.coords.latitude+","+loc.coords.longitude+")");
+			console.log("Current location: ("+loc.coords.latitude+","+loc.coords.longitude+")");
 
 			// Do reverse geocode
 			var url = "http://maps.google.com/maps/api/geocode/json?latlng="+loc.coords.latitude+","+loc.coords.longitude+"&sensor=true";
-			url = '/mobile/proxy.php?ct=text/json&url=' + encodeURIComponent(url);
+			//url = '/mobile/proxy.php?ct=text/json&url=' + encodeURIComponent(url);
 			var req = new XMLHttpRequest();
-			debugLog("Reverse geocode: requested url: " + url);
+			console.log("Reverse geocode: requested url: " + url);
 			req.open("GET", url, true);
 			req.onreadystatechange = function(){
-				//debugLog("req.readyState = " + req.readyState);
+				//console.log("req.readyState = " + req.readyState);
 				if (req.readyState == 4) {
-					debugLog("status=" + req.status + " length=" + req.responseText.length);
+					console.log("status=" + req.status + " length=" + req.responseText.length);
 					// only if "OK"
 					if (req.status == 200 || req.status == 0) {
 						try {
@@ -501,28 +463,28 @@ function onButtonLocClicked(e) {
 									zip = l.long_name;
 								}
 							}
-							debugLog(" streetNum="+streetNum+" street="+street+" city="+city+" state="+state+" zip="+zip);
+							console.log(" streetNum="+streetNum+" street="+street+" city="+city+" state="+state+" zip="+zip);
 							dojo.byId("streetLoc").value = streetNum+" " + street;
 							dojo.byId("cityLoc").value = city;
 							dojo.byId("stateLoc").value = state;
 							dojo.byId("zipLoc").value = zip;
 							locationChanged();
 						} catch (e) {
-							debugLog("Error evaluating geocode json response: "+e);
+							console.log("Error evaluating geocode json response: "+e);
 						}
 					}
 					else {
-						debugLog("Error: Unexpected response: " + req.responseText);
+						console.log("Error: Unexpected response: " + req.responseText);
 					}
 				}
 			};
 			req.send();
 		},
 		function() {
-			debugLog("Error retrieving current location.");
+			console.log("Error retrieving current location.");
 		});
 	} catch (e) {
-		debugLog("Error retrieving current location: " + e);
+		console.log("Error retrieving current location: " + e);
 	}
 }
 
@@ -532,9 +494,9 @@ function onButtonLocClicked(e) {
  * @param id		The photo id
  */
 function takePhoto(id) {
-	debugLog("takePhoto("+id+")");
+	console.log("takePhoto("+id+")");
 	try {
-		//debugLog(" - camera="+navigator.camera);
+		//console.log(" - camera="+navigator.camera);
 		// closure not allowed as callback in getPicture (at least for iphone) call so store imgId in a global until fixed
 		// see bug @ http  // phonegap.lighthouseapp.com/projects/20116/tickets/34-trying-to-use-camera-results-in-frozen-application
 		Mysurance.photoId = id;
@@ -543,7 +505,7 @@ function takePhoto(id) {
 
 	}
 	catch (e) {
-		debugLog("Error taking picture: " + e);
+		console.log("Error taking picture: " + e);
 	}
 };
 
@@ -553,13 +515,13 @@ function takePhoto(id) {
  * @param imageData
  */
 function photoSuccess(imageData) {
-	debugLog("photoSuccess() for photo "+Mysurance.photoId);
+	console.log("photoSuccess() for photo "+Mysurance.photoId);
 	displayPhoto(Mysurance.photoId, imageData);
 	try {
 		storePhoto(Mysurance.photoId, imageData);
 	}
 	catch (e) {
-		debugLog("Error saving photo to database: " + e);
+		console.log("Error saving photo to database: " + e);
 	}
 	Mysurance.photoId = "";
 };
@@ -571,7 +533,7 @@ function photoSuccess(imageData) {
  * @param imageData
  */
 function displayPhoto(id, imageData) {
-	debugLog("displayPhoto("+id+","+imageData.length+")");
+	console.log("displayPhoto("+id+","+imageData.length+")");
 	var el = document.getElementById("photo"+id+"-text");
 	if (imageData) {
 		el.style.visibility = 'hidden';
@@ -603,7 +565,7 @@ function displayPhoto(id, imageData) {
  * @param error
  */
 function photoError(error) {
-	debugLog("photoError() for photo "+Mysurance.photoId+": " + error);
+	console.log("photoError() for photo "+Mysurance.photoId+": " + error);
 };
 
 </script>

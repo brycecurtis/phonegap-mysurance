@@ -21,7 +21,7 @@ function basicTxnErrorDB(error) {
  * @param results
  */
 function basicTxnSuccessDB(trnasaction, results) {
-    //debugLog("successful DB transaction");
+    //console.log("successful DB transaction");
 }
 
 /**
@@ -103,7 +103,7 @@ function createTables(){
  * Open database for application
  */
 function getDatabase(){
-    debugLog("getDatabase()");
+    console.log("getDatabase()");
     if (!gDB) {
         try {
             if (!window.openDatabase) {
@@ -116,7 +116,7 @@ function getDatabase(){
                 var maxSize = 4000000; //65536; // in bytes
                 gDB = openDatabase(shortName, version, displayName, maxSize);
                 if (!gDB) {
-                    debugLog("Error opening database: returned null.");
+                    console.log("Error opening database: returned null.");
                     return;
                 }
                 createTables();
@@ -126,10 +126,10 @@ function getDatabase(){
             // Error handling code goes here.
             if (e == 2) {
                 // Version number mismatch.
-                debugLog("Invalid database version.");
+                console.log("Invalid database version.");
             }
             else {
-                debugLog("Database error: " + e);
+                console.log("Database error: " + e);
             }
 
         }
@@ -142,9 +142,9 @@ function getDatabase(){
  * @param isPrimary
  */
 function storeProfile(isPrimary) {
-    debugLog("storeProfile");
+    console.log("storeProfile");
     if (!mysurance.profileChanged) {
-        debugLog(" - not changed: just return");
+        console.log(" - not changed: just return");
         return;
     }
     mysurance.profileChanged = false;
@@ -155,7 +155,7 @@ function storeProfile(isPrimary) {
 
     for (var i=0; i<profileFields.length; i++){
         field = document.getElementById(profileFields[i]);
-        debugLog("field[" + i + "] = " + field);
+        console.log("field[" + i + "] = " + field);
         values[i] = (field && field.value !== "") ? field.value : ""; // value needs quoting for db security
     }
 
@@ -172,7 +172,7 @@ function storeProfile(isPrimary) {
             transaction.executeSql('REPLACE INTO profile ("' + list + '") VALUES ("' + data + '");',
              [],
              function(){/* null data handler*/},
-             function(){ /* error handler  - not fatal*/ debugLog("error storing profile"); return false;}
+             function(){ /* error handler  - not fatal*/ console.log("error storing profile"); return false;}
             );
         }, basicTxnErrorDB, basicTxnSuccessDB);
     }else{
@@ -181,7 +181,7 @@ function storeProfile(isPrimary) {
                 transaction.executeSql('UPDATE profile set "' + profileFields[k] + '"=? where profileId=?;',
                     [values[k], id.value],
                     function(){/* null data handler*/},
-                    function(){ /* error handler  - not fatal*/ debugLog("error storing profile"); return false;}
+                    function(){ /* error handler  - not fatal*/ console.log("error storing profile"); return false;}
                 );
             }
         }, basicTxnErrorDB, basicTxnSuccessDB);
@@ -195,7 +195,7 @@ function storeProfile(isPrimary) {
  * @param isPrimary
  */
 function loadProfile(isPrimary) {
-    debugLog("loadProfile("+isPrimary+")");
+    console.log("loadProfile("+isPrimary+")");
     mysurance.profileChanged = false;
 
     // Clear all vehicles except "Add Vehicle" node
@@ -203,7 +203,7 @@ function loadProfile(isPrimary) {
     var nodes = [];
     for (var i in vList.childNodes) {
         if ((vList.childNodes[i].nodeType === 1) && (vList.childNodes[i].id !== 'addItem')) {
-            //debugLog(" - adding child to be removed: "+vList.childNodes[i].innerHTML);
+            //console.log(" - adding child to be removed: "+vList.childNodes[i].innerHTML);
             nodes.push(vList.childNodes[i]);
         }
     }
@@ -216,16 +216,16 @@ function loadProfile(isPrimary) {
         transaction.executeSql('SELECT * FROM profile WHERE isPrimary=1;',
             [],
             function(transaction, results){
-                debugLog("loadProfile() callback");
+                console.log("loadProfile() callback");
 
                 // If there is data for this user
                 if (results.rows.length) {
-                    debugLog(" - results.rows.length = " +results.rows.length);
+                    console.log(" - results.rows.length = " +results.rows.length);
 
                     // Populate profile form
                     var row = results.rows.item(0); // always take the first for now needs work to add profiles for accident reporting
                     for (var i = 0; i < profileFields.length; i++) {
-                        debugLog(" - row["+profileFields[i]+"]: " + row[profileFields[i]])
+                        console.log(" - row["+profileFields[i]+"]: " + row[profileFields[i]])
                         var field = document.getElementById(profileFields[i]);
                         if (field) {
                             field.value = row[profileFields[i]];
@@ -234,26 +234,26 @@ function loadProfile(isPrimary) {
 
                     // Store the profileId read from database for this user
                     document.getElementById("profileId").value = row['profileId'];
-                    debugLog(" - profileId="+row['profileId']);
+                    console.log(" - profileId="+row['profileId']);
 
                     // Load vehicle data
                     transaction.executeSql('SELECT * FROM vehicles WHERE ownerId=?;',
                         [row['profileId']],
                         function(transcation, results){
-                            debugLog(" - in load profile, get vehicles");
+                            console.log(" - in load profile, get vehicles");
 
                             // If there are vehicles for this user
-                            debugLog(" - results.rows.length = " +results.rows.length);
+                            console.log(" - results.rows.length = " +results.rows.length);
                             if (results.rows.length) {
 
                                 try {
                                     // Add vehicles to list
                                     var parent = dijit.byId("vList");
                                     var addItem = document.getElementById("addItem");
-                                    //debugLog(" - vList="+parent+" addItem="+addItem);
+                                    //console.log(" - vList="+parent+" addItem="+addItem);
                                     for (var i = 0; i < results.rows.length; i++) {
                                         var row = results.rows.item(i);
-                                        debugLog(" - vName="+row["vName"]+" vehicleId="+row["vehicleId"]);
+                                        console.log(" - vName="+row["vName"]+" vehicleId="+row["vehicleId"]);
 
                                         //var listWidget = dijit.byId("vList");
                                         var li = dojo.create("LI");
@@ -270,31 +270,31 @@ function loadProfile(isPrimary) {
                                             viewVehicleClicked(this);
                                         });
 
-                                        debugLog(" - inserted vehicle");
+                                        console.log(" - inserted vehicle");
                                     }
                                 } catch (e) {
-                                    debugLog(" --- ERROR: "+e);
+                                    console.log(" --- ERROR: "+e);
                                 }
                             }
                         },
                         function(transaction, error){
-                            debugLog("Nested txn error in loadProfile().");
+                            console.log("Nested txn error in loadProfile().");
                             return false;
                         });
                 }
             },
-            function(transaction, error){ debugLog("loadProfile() error."); return false;}
+            function(transaction, error){ console.log("loadProfile() error."); return false;}
         );
-    },basicTxnErrorDB, function(){debugLog("loadProfile() success.");});
+    },basicTxnErrorDB, function(){console.log("loadProfile() success.");});
 }
 
 /**
  * Store vehicle info in database for current user
  */
 function storeVehicle() {
-    debugLog("storeVehicle()");
+    console.log("storeVehicle()");
     if (!mysurance.vehicleChanged) {
-        debugLog(" - not changed: just return");
+        console.log(" - not changed: just return");
         return;
     }
     mysurance.vehicleChanged = false;
@@ -322,16 +322,16 @@ function storeVehicle() {
     // Get vehicleId from form
     // (only set if vehicle was selected from list, not set if add vehicle was selected)
     var id = document.getElementById('vehicleId');
-    debugLog(" - id="+id.value);
+    console.log(" - id="+id.value);
 
     // If vehicleId not set, then this is a new vehicle
     if (!id || id.value === "") {
-        debugLog(" SQL=INSERT INTO vehicles (" + list + ") VALUES (" + data + ")");
+        console.log(" SQL=INSERT INTO vehicles (" + list + ") VALUES (" + data + ")");
         gDB.transaction(function(transaction){
             transaction.executeSql('INSERT INTO vehicles ("' + list + '") VALUES ("' + data + '");',
             [],
-            function(){ debugLog(" - success inserting into vehicles");},
-            function(){ debugLog(" - error inserting into vehicles"); return false;}
+            function(){ console.log(" - success inserting into vehicles");},
+            function(){ console.log(" - error inserting into vehicles"); return false;}
             );
         }, basicTxnErrorDB, basicTxnSuccessDB);
     }
@@ -341,12 +341,12 @@ function storeVehicle() {
         var vid = id.value;
         gDB.transaction(function(transaction){
             for (var k = 0; k < vehicleFields.length; k++) { // there must be a way to update them all with one call?
-                debugLog(' SQL=UPDATE vehicles set "' + vehicleFields[k] + '"=? where vehicleId=?;');
-                debugLog("   value="+values[k]+" id="+vid);
+                console.log(' SQL=UPDATE vehicles set "' + vehicleFields[k] + '"=? where vehicleId=?;');
+                console.log("   value="+values[k]+" id="+vid);
                 transaction.executeSql('UPDATE vehicles set "' + vehicleFields[k] + '"=? where vehicleId=?;',
                     [values[k], vid],
-                    function(){ debugLog(" - success updating vehicle");},
-                    function(){ debugLog(" - error updating vehicle"); return false;}
+                    function(){ console.log(" - success updating vehicle");},
+                    function(){ console.log(" - error updating vehicle"); return false;}
                 );
             }
         }, basicTxnErrorDB, basicTxnSuccessDB);
@@ -357,7 +357,7 @@ function storeVehicle() {
  * Clear vehicle form
  */
 function clearVehicleForm() {
-    debugLog("clearVehicleForm()");
+    console.log("clearVehicleForm()");
     for (var i=0; i<vehicleFields.length; i++){
         field=document.getElementById(vehicleFields[i]);
         field.value = "";
@@ -371,7 +371,7 @@ function clearVehicleForm() {
  * @param index         The vehicle id
  */
 function loadVehicle(index) {
-    debugLog("loadVehicle("+index+")");
+    console.log("loadVehicle("+index+")");
     mysurance.vehicleChanged = false;
 
     gDB.transaction(function(transaction){
@@ -391,7 +391,7 @@ function loadVehicle(index) {
                 }
             },
             function(transaction, error){
-                debugLog("txn error load vehicle");
+                console.log("txn error load vehicle");
                 return false;
             }
         );
@@ -402,12 +402,12 @@ function loadVehicle(index) {
  * Load accident information from database
  */
 function loadAccidentInfo() {
-    debugLog("loadAccidentInfo()");
+    console.log("loadAccidentInfo()");
 
     gDB.transaction(
         function(transaction) {
             var sql = 'SELECT * FROM accident;';
-            debugLog(sql);
+            console.log(sql);
             transaction.executeSql(sql, [],
                 function(transaction, results) {
                     for (var i=0; i<results.rows.length; i++) {
@@ -424,7 +424,7 @@ function loadAccidentInfo() {
                     }
                 },
                 function(transaction, error) {
-                    debugLog("Error retreiving accident parameters.");
+                    console.log("Error retreiving accident parameters.");
                     return false;
                 }
             );
@@ -438,9 +438,9 @@ function loadAccidentInfo() {
  * Save accident information to database
  */
 function storeAccidentInfo() {
-    debugLog("storeAccidentInfo()");
+    console.log("storeAccidentInfo()");
     if (!mysurance.accInfoChanged) {
-        debugLog(" - not changed: just return");
+        console.log(" - not changed: just return");
         return;
     }
     mysurance.accInfoChanged = false;
@@ -452,10 +452,10 @@ function storeAccidentInfo() {
                 var field = document.getElementById(key);
                 var value = (field && field.value !== "") ? field.value : ""; // value needs quoting for db security
                 var sql = 'INSERT OR REPLACE INTO accident (key,value) VALUES ("'+key+'","'+value+'");';
-                debugLog(sql);
+                console.log(sql);
                 transaction.executeSql(sql, [],
                     function() { },
-                    function() { debugLog("Error executing: "+sql); }
+                    function() { console.log("Error executing: "+sql); }
                 );
             }
         },
@@ -468,12 +468,12 @@ function storeAccidentInfo() {
  * Load accident location from database
  */
 function loadLocation() {
-    debugLog("loadLocation()");
+    console.log("loadLocation()");
 
     gDB.transaction(
         function(transaction) {
             var sql = 'SELECT * FROM location;';
-            debugLog(sql);
+            console.log(sql);
             transaction.executeSql(sql, [],
                 function(transaction, results) {
                     for (var i=0; i<results.rows.length; i++) {
@@ -490,7 +490,7 @@ function loadLocation() {
                     }
                 },
                 function(transaction, error) {
-                    debugLog("Error retreiving location parameters.");
+                    console.log("Error retreiving location parameters.");
                     return false;
                 }
             );
@@ -504,9 +504,9 @@ function loadLocation() {
  * Save accident location to database
  */
 function storeLocation() {
-    debugLog("storeLocation()");
+    console.log("storeLocation()");
     if (!mysurance.locationChanged) {
-        debugLog(" - not changed: just return");
+        console.log(" - not changed: just return");
         return;
     }
     mysurance.locationChanged = false;
@@ -518,10 +518,10 @@ function storeLocation() {
                 var field = document.getElementById(key);
                 var value = (field && field.value !== "") ? field.value : ""; // value needs quoting for db security
                 var sql = 'INSERT OR REPLACE INTO location (key,value) VALUES ("'+key+'","'+value+'");';
-                debugLog(sql);
+                console.log(sql);
                 transaction.executeSql(sql, [],
                     function() { },
-                    function() { debugLog("Error executing: "+sql); }
+                    function() { console.log("Error executing: "+sql); }
                 );
             }
         },
@@ -534,12 +534,12 @@ function storeLocation() {
  * Load and display all photos from database
  */
 function loadPhotos() {
-    debugLog("loadPhotos()");
+    console.log("loadPhotos()");
 
     gDB.transaction(
         function(transaction) {
             var sql = 'SELECT * FROM photos;';
-            debugLog(sql);
+            console.log(sql);
             transaction.executeSql(sql, [],
                 function(transaction, results) {
                     for (var i=0; i<results.rows.length; i++) {
@@ -550,7 +550,7 @@ function loadPhotos() {
                     }
                 },
                 function(transaction, error) {
-                    debugLog("Error retreiving location parameters.");
+                    console.log("Error retreiving location parameters.");
                     return false;
                 }
             );
@@ -567,15 +567,15 @@ function loadPhotos() {
  * @param imageData     The photo data
  */
 function storePhoto(id, imageData) {
-    debugLog("storePhoto("+id+")");
+    console.log("storePhoto("+id+")");
 
     gDB.transaction(
         function(transaction) {
             var sql = 'INSERT OR REPLACE INTO photos (key,value) VALUES ("'+id+'","'+imageData+'");';
-            //debugLog(sql);
+            //console.log(sql);
             transaction.executeSql(sql, [],
                 function() { },
-                function() { debugLog("Error executing: "+sql); }
+                function() { console.log("Error executing: "+sql); }
             );
         },
         basicTxnErrorDB,
