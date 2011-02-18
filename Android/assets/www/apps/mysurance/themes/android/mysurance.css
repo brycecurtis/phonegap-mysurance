@@ -1,0 +1,137 @@
+/* bc */
+body {
+    color: white;
+}
+
+/*
+body {
+    width:100%;
+    height:100%;
+    background-color:#cccccc; 
+    margin:0;
+    font-family:sans-serif;
+}
+#mainContent { 
+    display:block;    
+}
+
+.header {
+    background-color:#333399;
+    color:white;
+    text-shadow: rgba(0, 0, 0, 0.59375) 0px -1px 0px;
+    font-size: x-large;
+    font-weight:bold;
+    text-align:center;
+    padding-top:5px;
+    border-bottom:1px solid black;
+    height:44px;
+}
+
+.list{
+    margin: 0px;
+    padding: 0px;
+}
+
+.listItem{
+    border-bottom:1px solid rgb(224, 224, 224);
+    color:#333399;
+    background-color:white;
+    list-style-type: none;
+    width:100%;
+    vertical-align:middle;
+
+}
+.itemAction {
+    border-bottom:1px solid rgb(224, 224, 224);
+    display:inline-block;
+    font-size:x-large;
+    margin-left:3px;
+    background-color:#ffffff;
+    width:100%;
+    white-space: nowrap;
+    color:#333399;
+}
+.actionSizeL {
+    width:90%;
+    font-size:large;
+}
+.itemArrow{
+    display:inline-block;
+    float:right;
+    margin-top:5px;
+    margin-right:15px;
+    margin-left: auto;
+    width: 10px;
+    height: 13px;
+    background-image: url(images/chevron.png);
+    background-repeat: no-repeat;   
+}
+*/
+/* itemText and itemInput are used within an itemList to display a label followed by
+ * an input field for text.  The goal is to have all of the inputs start at the same
+ * horitonal column on the screen The only way I could get this to work in both horiz and
+ * vertical mode was to specify a width for the item text.  We may want to include
+ * overflow:hidden or text-overflow:ellipsis to deal with long labels.  Also,
+ * I had to set a width =55% on itemInput - anything larger and it would wrap in vertical mode but
+ * it doesn't take up the entire width when horizontal and really should.  I 
+ * couldn't find a way to just get the input field to fill the remaining space.  Another
+ * approach might be to use text-align:right on the itemList, absolutely position the
+ * itemText to the left and then use padding-left to position the input.  food for
+ * thought for better CSS gurus!
+ */
+ /* bc */
+.itemText {
+    font-size:large;
+    margin-left:3px;
+    display:inline-block;
+    white-space: nowrap;
+    /*width:100px;*/
+}
+/* bc */
+.itemInput {
+    border:none !important;
+    -webkit-border-radius: 4px;
+    margin-top:10px;
+    float: right;
+    font-size:large;
+    width: 55%;
+    height:38px;
+}
+/* bc */
+.roundedBox {
+    background-color:#ffffff;
+    -webkit-border-radius: 8px;
+    padding:5px;
+    margin:5px;
+    border: 1px solid #333399;
+    
+}
+/* bc */
+.text {
+    color: white;
+    padding: 5px;
+}
+/*
+.bannerBtnLeft{
+    margin-top: 5px;
+    float:left;
+    margin-left: 5px;
+}
+.bannerBtnRight {
+    float:right;
+    margin-top:5px;
+    margin-right:15px;
+}
+.mapStyle{
+    width:100%; 
+    height:100%;
+}
+.toolbar {
+    background-image:url("images/toolbar.jpg");
+position:fixed;
+    top:200px;
+    height:50px;
+    width:320px;
+    z-index:5;
+}
+*/
