@@ -175,11 +175,8 @@ function backPressed(e) {
 /**
  * When this function is called, PhoneGap has been initialized and is ready to roll
  */
-function onDeviceReady()
-{
+function onDeviceReady() {
 	console.log("onDeviceReady()");
-    window.BackButton.override();
-
 	// Open database for our app
 	getDatabase();
 }
@@ -298,72 +295,67 @@ function mapTowing() {
  */
 function onButtonLocClicked(e) {
 	console.log("onButtonLocClicked()");
-	try {
-		navigator.geolocation.getCurrentPosition(
-		function(loc) {
-			console.log("Current location: ("+loc.coords.latitude+","+loc.coords.longitude+")");
+	navigator.geolocation.getCurrentPosition(
+	function(loc) {
+		console.log("Current location: ("+loc.coords.latitude+","+loc.coords.longitude+")");
 
-			// Do reverse geocode
-			var url = "http://maps.google.com/maps/api/geocode/json?latlng="+loc.coords.latitude+","+loc.coords.longitude+"&sensor=true";
-			//url = '/mobile/proxy.php?ct=text/json&url=' + encodeURIComponent(url);
-			var req = new XMLHttpRequest();
-			console.log("Reverse geocode: requested url: " + url);
-			req.open("GET", url, true);
-			req.onreadystatechange = function(){
-				//console.log("req.readyState = " + req.readyState);
-				if (req.readyState == 4) {
-					console.log("status=" + req.status + " length=" + req.responseText.length);
-					// only if "OK"
-					if (req.status == 200 || req.status == 0) {
-						try {
-							eval('var r='+req.responseText+';');
-							var streetNum = '';
-							var street = '';
-							var city = '';
-							var state = '';
-							var zip = '';
-							var a = r.results[0].address_components
-							for (var i in a) {
-								var l = a[i];
-								if (l.types[0] == 'street_number') {
-									streetNum = l.long_name;
-								}
-								if (l.types[0] == 'route') {
-									street = l.long_name;
-								}
-								if (l.types[0] == 'locality') {
-									city = l.long_name;
-								}
-								if (l.types[0] == 'administrative_area_level_1') {
-									state = l.short_name;
-								}
-								if (l.types[0] == 'postal_code') {
-									zip = l.long_name;
-								}
+		// Do reverse geocode
+		var url = "http://maps.google.com/maps/api/geocode/json?latlng="+loc.coords.latitude+","+loc.coords.longitude+"&sensor=true";
+		var req = new XMLHttpRequest();
+		console.log("Reverse geocode: requested url: " + url);
+		req.open("GET", url, true);
+		req.onreadystatechange = function(){
+			//console.log("req.readyState = " + req.readyState);
+			if (req.readyState == 4) {
+				console.log("status=" + req.status + " length=" + req.responseText.length);
+				// only if "OK"
+				if (req.status == 200 || req.status == 0) {
+					try {
+						eval('var r='+req.responseText+';');
+						var streetNum = '';
+						var street = '';
+						var city = '';
+						var state = '';
+						var zip = '';
+						var a = r.results[0].address_components
+						for (var i in a) {
+							var l = a[i];
+							if (l.types[0] == 'street_number') {
+								streetNum = l.long_name;
 							}
-							console.log(" streetNum="+streetNum+" street="+street+" city="+city+" state="+state+" zip="+zip);
-							dojo.byId("streetLoc").value = streetNum+" " + street;
-							dojo.byId("cityLoc").value = city;
-							dojo.byId("stateLoc").value = state;
-							dojo.byId("zipLoc").value = zip;
-							locationChanged();
-						} catch (e) {
-							console.log("Error evaluating geocode json response: "+e);
+							if (l.types[0] == 'route') {
+								street = l.long_name;
+							}
+							if (l.types[0] == 'locality') {
+								city = l.long_name;
+							}
+							if (l.types[0] == 'administrative_area_level_1') {
+								state = l.short_name;
+							}
+							if (l.types[0] == 'postal_code') {
+								zip = l.long_name;
+							}
 						}
-					}
-					else {
-						console.log("Error: Unexpected response: " + req.responseText);
+						console.log(" streetNum="+streetNum+" street="+street+" city="+city+" state="+state+" zip="+zip);
+						dojo.byId("streetLoc").value = streetNum+" " + street;
+						dojo.byId("cityLoc").value = city;
+						dojo.byId("stateLoc").value = state;
+						dojo.byId("zipLoc").value = zip;
+						locationChanged();
+					} catch (e) {
+						console.log("Error evaluating geocode json response: "+e);
 					}
 				}
-			};
-			req.send();
-		},
-		function() {
-			console.log("Error retrieving current location.");
-		});
-	} catch (e) {
-		console.log("Error retrieving current location: " + e);
-	}
+				else {
+					console.log("Error: Unexpected response: " + req.responseText);
+				}
+			}
+		};
+		req.send();
+	},
+	function() {
+		console.log("Error retrieving current location.");
+	});
 }
 
 /**
@@ -373,18 +365,8 @@ function onButtonLocClicked(e) {
  */
 function takePhoto(id) {
 	console.log("takePhoto("+id+")");
-	try {
-		//console.log(" - camera="+navigator.camera);
-		// closure not allowed as callback in getPicture (at least for iphone) call so store imgId in a global until fixed
-		// see bug @ http  // phonegap.lighthouseapp.com/projects/20116/tickets/34-trying-to-use-camera-results-in-frozen-application
-		Mysurance.photoId = id;
-		var options = { quality: 20 };
-		navigator.camera.getPicture(photoSuccess, photoError, options);
-
-	}
-	catch (e) {
-		console.log("Error taking picture: " + e);
-	}
+	Mysurance.photoId = id;
+	navigator.camera.getPicture(photoSuccess, photoError, { quality: 20 });
 };
 
 /**
