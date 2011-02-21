@@ -14,12 +14,10 @@
 <script type="text/javascript" charset="utf-8" src="../../libs/phonegap.0.9.4.js"></script>
 <script type="text/javascript" src="../../libs/dojo.js" djConfig="parseOnLoad:true"></script>
 <script type="text/javascript" src="storageDojo.js"></script>
-<script language="JavaScript" type="text/javascript">
-	// Use the lightweight parser.
-	dojo.require("dojox.mobile.parser");
-	dojo.require("dojox.mobile");
-</script>
-<script type="text/javascript" charset="utf-8">
+<script language="text/javascript" type="text/javascript">
+// Use the lightweight parser.
+dojo.require("dojox.mobile.parser");
+dojo.require("dojox.mobile");
 
 /**
  * Our main object
@@ -81,87 +79,6 @@ function leavingHome(moveTo, dir, transition, context, method) {
 }
 
 /**
- * Entering my info screen
- */
-function enteringMyInfo(moveTo, dir, transition, context, method) {
-	mysurance.cur = 'myInfo';
-	mysurance.back = 'home';
-}
-
-/**
- * Leaving my info screen
- */
-function leavingMyInfo(moveTo, dir, transition, context, method) {
-	storeProfile(true);
-}
-
-/**
- * Entering accident toolkit screen
- */
-function enteringAccHelp(moveTo, dir, transition, context, method) {
-	mysurance.cur = 'accHelp';
-	mysurance.back = 'home';
-}
-
-/**
- * Entering add vehicle screen
- */
-function enteringAddVehicle(moveTo, dir, transition, context, method) {
-	mysurance.cur = 'addVehicle';
-	mysurance.back = 'myInfo';
-}
-
-/**
- * Leaving add vehicle screen
- */
-function leavingAddVehicle(moveTo, dir, transition, context, method) {
-	storeVehicle();
-	loadProfile(true);
-	clearVehicleForm();
-}
-
-/**
- * Entering accident info screen
- */
-function enteringAccInfo(moveTo, dir, transition, context, method) {
-	mysurance.cur = 'accInfo';
-	mysurance.back = 'accHelp';
-	loadAccidentInfo();
-}
-
-/**
- * Leaving accident info screen
- */
-function leavingAccInfo(moveTo, dir, transition, context, method) {
-	storeAccidentInfo();
-}
-
-/**
- * Entering accident location screen
- */
-function enteringAccLocation(moveTo, dir, transition, context, method) {
-	mysurance.cur = 'accLocation';
-	mysurance.back = 'accHelp';
-	loadLocation();
-}
-
-/**
- * Leaving accident location screen
- */
-function leavingAccLocation(moveTo, dir, transition, context, method) {
-	storeLocation();
-}
-
-/**
- * Entering accident photo screen
- */
-function enteringAccPhotos(moveTo, dir, transition, context, method) {
-	mysurance.cur = 'accPhotos';
-	mysurance.back = 'accHelp';
-	loadPhotos();
-}
-
-/**
  * Back button was pressed. Show previous view.
  */
 function backPressed(e) {
@@ -190,249 +107,30 @@ function onBodyUnload() {
 	console.log("onBodyUnload()");
 	return true;
 }
+</script>
+</head>
+<body onload="onBodyLoad();" onunload="onBodyUnload();">
 
-/**
- * Set flag indicating that profile has been modified
- */
-function profileChanged() {
-	console.log("profileChanged()");
-	mysurance.profileChanged = true;
-}
-
-/**
- * Set flag indicating that vehicle has been modified
- */
-function vehicleChanged() {
-	console.log("vehicleChanged()");
-	mysurance.vehicleChanged = true;
-}
-
-/**
- * The Add Vehicle menu item was clicked
- */
-function addVehicleClicked() {
-	console.log("addVehicleClicked()");
-
-	// Save changes to profile
-	storeProfile(true);
-
-	// Set the ownerId of the form to the profileId
-	document.getElementById("ownerId").value = document.getElementById("profileId").value;
-}
-
-/**
- * The View Vehicle menu item was clicked
- *
- * @param el		The el of the vehicle item
- */
-function viewVehicleClicked(el) {
-	console.log("viewVehicleClicked("+el+")");
-	var id = el.getAttribute("vid");
-	console.log(" - id="+id);
-
-	// Save changes to profile
-	storeProfile(true);
-
-	// Set the ownerId of the form to the profileId
-	document.getElementById("ownerId").value = document.getElementById("profileId").value;
-	document.getElementById("vehicleId").value = id;
-
-	// Load vehicle profile
-	loadVehicle(id);
-}
-
-/**
- * Set flag indicating that accident location has been modified
- */
-function locationChanged() {
-	console.log("locationChanged()");
-	mysurance.locationChanged = true;
-}
-
-/**
- * Set flag indicating that accident driver info has been modified
- */
-function accInfoChanged() {
-	console.log("accInfoChanged()");
-	mysurance.accInfoChanged = true;
-}
+<!-- HOME PAGE -->
+<script type="text/javascript" charset="utf-8">
 
 /**
  * Display profile panel
  */
 function myInfoClicked() {
-	loadProfile(true);
-	var el = dijit.byId("home");
-	el.performTransition("myInfo", 1, 'slide');
+    loadProfile(true);
+    var el = dijit.byId("home");
+    el.performTransition("myInfo", 1, 'slide');
 }
 
 /**
  * Display accident toolkit panel
  */
 function accHelpClicked() {
-	var el = dijit.byId("home");
-	el.performTransition("accHelp", 1, 'slide');
+    var el = dijit.byId("home");
+    el.performTransition("accHelp", 1, 'slide');
 }
-
-/**
- * Display locate police prompt and panel if answered OK to prompt
- */
-function checkPolice() {
-	console.log("checkPolice()");
-	window.location = "geo:0,0?q=police";
-}
-
-/**
- * Display map of towing companies
- */
-function mapTowing() {
-	console.log("mapTowing()");
-	window.location = "geo:0,0?q=towing";
-}
-
-/**
- * Use current location button clicked
- */
-function onButtonLocClicked(e) {
-	console.log("onButtonLocClicked()");
-	navigator.geolocation.getCurrentPosition(
-	function(loc) {
-		console.log("Current location: ("+loc.coords.latitude+","+loc.coords.longitude+")");
-
-		// Do reverse geocode
-		var url = "http://maps.google.com/maps/api/geocode/json?latlng="+loc.coords.latitude+","+loc.coords.longitude+"&sensor=true";
-		var req = new XMLHttpRequest();
-		console.log("Reverse geocode: requested url: " + url);
-		req.open("GET", url, true);
-		req.onreadystatechange = function(){
-			//console.log("req.readyState = " + req.readyState);
-			if (req.readyState == 4) {
-				console.log("status=" + req.status + " length=" + req.responseText.length);
-				// only if "OK"
-				if (req.status == 200 || req.status == 0) {
-					try {
-						eval('var r='+req.responseText+';');
-						var streetNum = '';
-						var street = '';
-						var city = '';
-						var state = '';
-						var zip = '';
-						var a = r.results[0].address_components
-						for (var i in a) {
-							var l = a[i];
-							if (l.types[0] == 'street_number') {
-								streetNum = l.long_name;
-							}
-							if (l.types[0] == 'route') {
-								street = l.long_name;
-							}
-							if (l.types[0] == 'locality') {
-								city = l.long_name;
-							}
-							if (l.types[0] == 'administrative_area_level_1') {
-								state = l.short_name;
-							}
-							if (l.types[0] == 'postal_code') {
-								zip = l.long_name;
-							}
-						}
-						console.log(" streetNum="+streetNum+" street="+street+" city="+city+" state="+state+" zip="+zip);
-						dojo.byId("streetLoc").value = streetNum+" " + street;
-						dojo.byId("cityLoc").value = city;
-						dojo.byId("stateLoc").value = state;
-						dojo.byId("zipLoc").value = zip;
-						locationChanged();
-					} catch (e) {
-						console.log("Error evaluating geocode json response: "+e);
-					}
-				}
-				else {
-					console.log("Error: Unexpected response: " + req.responseText);
-				}
-			}
-		};
-		req.send();
-	},
-	function() {
-		console.log("Error retrieving current location.");
-	});
-}
-
-/**
- * Take photo
- *
- * @param id		The photo id
- */
-function takePhoto(id) {
-	console.log("takePhoto("+id+")");
-	Mysurance.photoId = id;
-	navigator.camera.getPicture(photoSuccess, photoError, { quality: 20 });
-};
-
-/**
- * Callback for successful photo taken
- *
- * @param imageData
- */
-function photoSuccess(imageData) {
-	console.log("photoSuccess() for photo "+Mysurance.photoId);
-	displayPhoto(Mysurance.photoId, imageData);
-	try {
-		storePhoto(Mysurance.photoId, imageData);
-	}
-	catch (e) {
-		console.log("Error saving photo to database: " + e);
-	}
-	Mysurance.photoId = "";
-};
-
-/**
- * Display photo
- *
- * @param id
- * @param imageData
- */
-function displayPhoto(id, imageData) {
-	console.log("displayPhoto("+id+","+imageData.length+")");
-	var el = document.getElementById("photo"+id+"-text");
-	if (imageData) {
-		el.style.visibility = 'hidden';
-		el.style.display = 'none';
-	}
-	else {
-		el.style.visibility = 'visible';
-		el.style.display = 'block';
-	}
-
-	var img = document.getElementById("photo"+id);
-	if (imageData) {
-		img.style.height = "150px";
-		img.style.visibility = 'visible';
-		img.style.display = 'block';
-		img.src = "data:image/jpeg;base64," + imageData;
-	}
-	else {
-		img.style.height = "150px";
-		img.style.visibility = 'hidden';
-		img.style.display = 'none';
-		img.src = "";
-	}
-};
-
-/**
- * Callback for camera error
- *
- * @param error
- */
-function photoError(error) {
-	console.log("photoError() for photo "+Mysurance.photoId+": " + error);
-};
-
 </script>
-</head>
-<body onload="onBodyLoad();" onunload="onBodyUnload();">
-
-<!-- HOME PAGE -->
 <div id="home" dojoType="dojox.mobile.View" selected="true">
 	<h1 dojoType="dojox.mobile.Heading">Mysurance</h1>
 	<img src="images/splash.jpg" style="position:absolute:top:0px;left:0px;" />
@@ -446,6 +144,43 @@ function photoError(error) {
 </div>
 
 <!-- EDIT PROFILE PAGE -->
+<script type="text/javascript" charset="utf-8">
+/**
+ * Entering my info screen
+ */
+function enteringMyInfo(moveTo, dir, transition, context, method) {
+    mysurance.cur = 'myInfo';
+    mysurance.back = 'home';
+}
+
+/**
+ * Leaving my info screen
+ */
+function leavingMyInfo(moveTo, dir, transition, context, method) {
+    storeProfile(true);
+}	
+
+/**
+ * Set flag indicating that profile has been modified
+ */
+function profileChanged() {
+    console.log("profileChanged()");
+    mysurance.profileChanged = true;
+}
+
+/**
+ * The Add Vehicle menu item was clicked
+ */
+function addVehicleClicked() {
+    console.log("addVehicleClicked()");
+
+    // Save changes to profile
+    storeProfile(true);
+
+    // Set the ownerId of the form to the profileId
+    document.getElementById("ownerId").value = document.getElementById("profileId").value;
+}
+</script>
 <div id="myInfo" dojoType="dojox.mobile.View">
 	<h1 dojoType="dojox.mobile.Heading" back="Home" moveTo="home">My Info</h1>
 	<ul dojoType="dojox.mobile.RoundRectList">
@@ -526,6 +261,32 @@ function photoError(error) {
 </div>
 
 <!-- ADD VEHICLE PAGE -->
+<script type="text/javascript" charset="utf-8">
+/**
+ * Entering add vehicle screen
+ */
+function enteringAddVehicle(moveTo, dir, transition, context, method) {
+    mysurance.cur = 'addVehicle';
+    mysurance.back = 'myInfo';
+}
+
+/**
+ * Leaving add vehicle screen
+ */
+function leavingAddVehicle(moveTo, dir, transition, context, method) {
+    storeVehicle();
+    loadProfile(true);
+    clearVehicleForm();
+}
+
+/**
+ * Set flag indicating that vehicle has been modified
+ */
+function vehicleChanged() {
+    console.log("vehicleChanged()");
+    mysurance.vehicleChanged = true;
+}
+</script>
 <div dojoType="dojox.mobile.View" id="addVehicle">
 	<h1 dojoType="dojox.mobile.Heading" back="My Info" moveTo="myInfo">Add Vehicle</h1>
 	<h2 dojoType="dojox.mobile.RoundRectCategory">Add Vehicle</h2>
@@ -541,6 +302,31 @@ function photoError(error) {
 </div>
 
 <!-- ACCIDENT TOOLKIT PAGE -->
+<script type="text/javascript" charset="utf-8">
+/**
+ * Entering accident toolkit screen
+ */
+function enteringAccHelp(moveTo, dir, transition, context, method) {
+    mysurance.cur = 'accHelp';
+    mysurance.back = 'home';
+}
+
+/**
+ * Display locate police prompt and panel if answered OK to prompt
+ */
+function checkPolice() {
+    console.log("checkPolice()");
+    window.location = "geo:0,0?q=police";
+}
+
+/**
+ * Display map of towing companies
+ */
+function mapTowing() {
+    console.log("mapTowing()");
+    window.location = "geo:0,0?q=towing";
+}
+</script>
 <div dojoType="dojox.mobile.View" id="accHelp">
 	<h1 dojoType="dojox.mobile.Heading" back="Home" moveTo="home">Accident</h1>
 	<div class="text">If you are in an accident, you should first move to a safe location.  Below are some additional actions you can take:</div>
@@ -554,6 +340,31 @@ function photoError(error) {
 </div>
 
 <!-- EXCHANGE DRIVER INFO PAGE -->
+<script type="text/javascript" charset="utf-8">
+/**
+ * Entering accident info screen
+ */
+function enteringAccInfo(moveTo, dir, transition, context, method) {
+    mysurance.cur = 'accInfo';
+    mysurance.back = 'accHelp';
+    loadAccidentInfo();
+}
+
+/**
+ * Leaving accident info screen
+ */
+function leavingAccInfo(moveTo, dir, transition, context, method) {
+    storeAccidentInfo();
+}
+
+/**
+ * Set flag indicating that accident driver info has been modified
+ */
+function accInfoChanged() {
+    console.log("accInfoChanged()");
+    mysurance.accInfoChanged = true;
+}
+</script>
 <div dojoType="dojox.mobile.View" id="accInfo">
 	<h1 dojoType="dojox.mobile.Heading" back="Accident" moveTo="accHelp">Driver</h1>
 	<h2 dojoType="dojox.mobile.RoundRectCategory">Other Driver Info</h2>
@@ -577,6 +388,99 @@ function photoError(error) {
 </div>
 
 <!-- LOCATION ENTER PAGE -->
+<script type="text/javascript" charset="utf-8">
+/**
+ * Entering accident location screen
+ */
+function enteringAccLocation(moveTo, dir, transition, context, method) {
+    mysurance.cur = 'accLocation';
+    mysurance.back = 'accHelp';
+    loadLocation();
+}
+
+/**
+ * Leaving accident location screen
+ */
+function leavingAccLocation(moveTo, dir, transition, context, method) {
+    storeLocation();
+}
+
+/**
+ * Set flag indicating that accident location has been modified
+ */
+function locationChanged() {
+    console.log("locationChanged()");
+    mysurance.locationChanged = true;
+}
+
+/**
+ * Use current location button clicked
+ */
+function onButtonLocClicked(e) {
+    console.log("onButtonLocClicked()");
+    navigator.geolocation.getCurrentPosition(
+    function(loc) {
+        console.log("Current location: ("+loc.coords.latitude+","+loc.coords.longitude+")");
+
+        // Do reverse geocode
+        var url = "http://maps.google.com/maps/api/geocode/json?latlng="+loc.coords.latitude+","+loc.coords.longitude+"&sensor=true";
+        var req = new XMLHttpRequest();
+        console.log("Reverse geocode: requested url: " + url);
+        req.open("GET", url, true);
+        req.onreadystatechange = function(){
+            //console.log("req.readyState = " + req.readyState);
+            if (req.readyState == 4) {
+                console.log("status=" + req.status + " length=" + req.responseText.length);
+                // only if "OK"
+                if (req.status == 200 || req.status == 0) {
+                    try {
+                        eval('var r='+req.responseText+';');
+                        var streetNum = '';
+                        var street = '';
+                        var city = '';
+                        var state = '';
+                        var zip = '';
+                        var a = r.results[0].address_components
+                        for (var i in a) {
+                            var l = a[i];
+                            if (l.types[0] == 'street_number') {
+                                streetNum = l.long_name;
+                            }
+                            if (l.types[0] == 'route') {
+                                street = l.long_name;
+                            }
+                            if (l.types[0] == 'locality') {
+                                city = l.long_name;
+                            }
+                            if (l.types[0] == 'administrative_area_level_1') {
+                                state = l.short_name;
+                            }
+                            if (l.types[0] == 'postal_code') {
+                                zip = l.long_name;
+                            }
+                        }
+                        console.log(" streetNum="+streetNum+" street="+street+" city="+city+" state="+state+" zip="+zip);
+                        dojo.byId("streetLoc").value = streetNum+" " + street;
+                        dojo.byId("cityLoc").value = city;
+                        dojo.byId("stateLoc").value = state;
+                        dojo.byId("zipLoc").value = zip;
+                        locationChanged();
+                    } catch (e) {
+                        console.log("Error evaluating geocode json response: "+e);
+                    }
+                }
+                else {
+                    console.log("Error: Unexpected response: " + req.responseText);
+                }
+            }
+        };
+        req.send();
+    },
+    function() {
+        console.log("Error retrieving current location.");
+    });
+}
+</script>
 <div id="accLocation" dojoType="dojox.mobile.View">
 	<h1 dojoType="dojox.mobile.Heading" back="Accident" moveTo="accHelp">Location</h1>
 	<ul dojoType="dojox.mobile.RoundRectList">
@@ -645,6 +549,86 @@ function photoError(error) {
 </div>
 
 <!-- ACCIDENT PHOTOS PAGE -->
+<script type="text/javascript" charset="utf-8">
+/**
+ * Entering accident photo screen
+ */
+function enteringAccPhotos(moveTo, dir, transition, context, method) {
+    mysurance.cur = 'accPhotos';
+    mysurance.back = 'accHelp';
+    loadPhotos();
+}
+
+/**
+ * Take photo
+ *
+ * @param id        The photo id
+ */
+function takePhoto(id) {
+    console.log("takePhoto("+id+")");
+    Mysurance.photoId = id;
+    navigator.camera.getPicture(photoSuccess, photoError, { quality: 20 });
+};
+
+/**
+ * Callback for successful photo taken
+ *
+ * @param imageData
+ */
+function photoSuccess(imageData) {
+    console.log("photoSuccess() for photo "+Mysurance.photoId);
+    displayPhoto(Mysurance.photoId, imageData);
+    try {
+        storePhoto(Mysurance.photoId, imageData);
+    }
+    catch (e) {
+        console.log("Error saving photo to database: " + e);
+    }
+    Mysurance.photoId = "";
+};
+
+/**
+ * Display photo
+ *
+ * @param id
+ * @param imageData
+ */
+function displayPhoto(id, imageData) {
+    console.log("displayPhoto("+id+","+imageData.length+")");
+    var el = document.getElementById("photo"+id+"-text");
+    if (imageData) {
+        el.style.visibility = 'hidden';
+        el.style.display = 'none';
+    }
+    else {
+        el.style.visibility = 'visible';
+        el.style.display = 'block';
+    }
+
+    var img = document.getElementById("photo"+id);
+    if (imageData) {
+        img.style.height = "150px";
+        img.style.visibility = 'visible';
+        img.style.display = 'block';
+        img.src = "data:image/jpeg;base64," + imageData;
+    }
+    else {
+        img.style.height = "150px";
+        img.style.visibility = 'hidden';
+        img.style.display = 'none';
+        img.src = "";
+    }
+};
+
+/**
+ * Callback for camera error
+ *
+ * @param error
+ */
+function photoError(error) {
+    console.log("photoError() for photo "+Mysurance.photoId+": " + error);
+};
+</script>
 <div dojoType="dojox.mobile.View" id="accPhotos">
 	<h1 dojoType="dojox.mobile.Heading" back="Accident" moveTo="accHelp">Photos</h1>
 	<div class="text">Please take photos from a safe location.</div>
