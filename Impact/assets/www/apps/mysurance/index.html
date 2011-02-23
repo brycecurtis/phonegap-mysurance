@@ -312,31 +312,23 @@ function enteringAccHelp(moveTo, dir, transition, context, method) {
 }
 
 /**
- * Display locate police prompt and panel if answered OK to prompt
+ * Display locate query string
  */
-function checkPolice() {
-    console.log("checkPolice()");
-    window.location = "geo:0,0?q=police";
-}
-
-/**
- * Display map of towing companies
- */
-function mapTowing() {
-    console.log("mapTowing()");
-    window.location = "geo:0,0?q=towing";
+function mapQuery(queryString) {
+    console.log("mapQuery()");
+    window.location = "geo:0,0?q="+queryString;
 }
 </script>
 <div dojoType="dojox.mobile.View" id="accHelp">
-	<h1 dojoType="dojox.mobile.Heading" back="Home" moveTo="home">Accident</h1>
-	<div class="text">If you are in an accident, you should first move to a safe location.  Below are some additional actions you can take:</div>
-	<ul dojoType="dojox.mobile.RoundRectList">
-		<li dojoType="dojox.mobile.ListItem" id="policeListItem" onclick='checkPolice(this, event);'>Call the Police</li>
-		<li dojoType="dojox.mobile.ListItem" onclick='mapTowing();'>Call for a Tow Truck</li>
-		<li dojoType="dojox.mobile.ListItem" moveTo="accInfo" transition="slide">Exchange Driver Info</li>
-		<li dojoType="dojox.mobile.ListItem" moveTo="accLocation" transition="slide">Record Accident Location</li>
-		<li dojoType="dojox.mobile.ListItem" moveTo="accPhotos" transition="slide">Take Photos of Accident</li>
-	</ul>
+    <h1 dojoType="dojox.mobile.Heading" back="Home" moveTo="home">Accident</h1>
+    <div class="text">If you are in an accident, you should first move to a safe location.  Below are some additional actions you can take:</div>
+    <ul dojoType="dojox.mobile.RoundRectList">
+        <li dojoType="dojox.mobile.ListItem" id="policeListItem" onclick='mapQuery("police");'>Call the Police</li>
+        <li dojoType="dojox.mobile.ListItem" onclick='mapQuery("towing");'>Call for a Tow Truck</li>
+        <li dojoType="dojox.mobile.ListItem" moveTo="accInfo" transition="slide">Exchange Driver Info</li>
+        <li dojoType="dojox.mobile.ListItem" moveTo="accLocation" transition="slide">Record Accident Location</li>
+        <li dojoType="dojox.mobile.ListItem" moveTo="accPhotos" transition="slide">Take Photos of Accident</li>
+    </ul>
 </div>
 
 <!-- EXCHANGE DRIVER INFO PAGE -->

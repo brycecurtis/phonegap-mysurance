@@ -1,0 +1,305 @@
+<!DOCTYPE html >
+<html lang="en">
+<head>
+
+<meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+<meta name="viewport" content="width=device-width; initial-scale=1.0; maximum-scale=1.0; user-scalable=no" />
+<meta name="format-detection" content="telephone=yes" />
+
+<title>Mysurance Demo</title>
+
+<link rel="stylesheet" href="themes/android/mysurance.css" type="text/css" media="screen" title="no title" charset="utf-8">
+<link rel="stylesheet" href="../../libs/dojo/dojox/mobile/themes/android/android.css" type="text/css" media="screen" title="no title" charset="utf-8">
+
+<script type="text/javascript" charset="utf-8" src="../../libs/phonegap.0.9.4.js"></script>
+<script type="text/javascript" src="../../libs/dojo.js" djConfig="parseOnLoad:true"></script>
+<script type="text/javascript" src="storageDojo.js"></script>
+<script language="text/javascript" type="text/javascript">
+// Use the lightweight parser.
+dojo.require("dojox.mobile.parser");
+dojo.require("dojox.mobile");
+
+/**
+ * Global Variables
+ */
+var cur = null;
+var back = null;
+
+/**
+ * Called when initial web page is loaded
+ */
+function onBodyLoad()
+{
+    console.log("onBodyLoad()");
+    
+    // Listen for PhoneGap framework to finish init
+    document.addEventListener("deviceready",onDeviceReady,false);
+    
+    // Listen for back button
+    document.addEventListener("backKeyDown", backPressed);
+
+
+    // Hook transitions
+    try {
+        dijit.byId('home').onBeforeTransitionIn = enteringHome;
+        dijit.byId('home').onBeforeTransitionOut = leavingHome;
+        dijit.byId('myInfo').onBeforeTransitionIn = enteringMyInfo;
+        dijit.byId('myInfo').onBeforeTransitionOut = leavingMyInfo;
+        dijit.byId('addVehicle').onBeforeTransitionIn = enteringAddVehicle;
+        dijit.byId('addVehicle').onBeforeTransitionOut = leavingAddVehicle;
+    } catch (e) {
+        console.log("  - error hooking transitions: "+e);
+    }
+}
+
+/**
+ * Entering home screen
+ */
+function enteringHome(moveTo, dir, transition, context, method) {
+    window.BackButton.reset();
+    cur = 'home';
+    back = null;
+}
+/**
+ * Leaving home screen
+ */
+function leavingHome(moveTo, dir, transition, context, method) {
+    window.BackButton.override();
+}
+
+/**
+ * Back button was pressed. Show previous view.
+ */
+function backPressed(e) {
+    console.log("backPressed");
+    if (back && cur) {
+        el = dijit.byId(cur);
+        el.performTransition(back, -1, 'slide');
+    }
+}
+
+/**
+ * When this function is called, PhoneGap has been initialized and is ready to roll
+ */
+function onDeviceReady() {
+    console.log("onDeviceReady()");
+    // Open database for our app
+    getDatabase();
+}
+</script>
+</head>
+<body onload="onBodyLoad();">
+	
+<!-- HOME PAGE -->
+<script type="text/javascript" charset="utf-8">
+
+/**
+ * Display profile panel
+ */
+function myInfoClicked() {
+    loadProfile(true);
+    var el = dijit.byId("home");
+    el.performTransition("myInfo", 1, 'slide');
+}
+
+/**
+ * Display accident toolkit panel
+ */
+function accHelpClicked() {
+    var el = dijit.byId("home");
+    el.performTransition("accHelp", 1, 'slide');
+}
+</script>
+<div id="home" dojoType="dojox.mobile.View" selected="true">
+    <h1 dojoType="dojox.mobile.Heading">Mysurance</h1>
+    <img src="images/splash.jpg" style="position:absolute:top:0px;left:0px;" />
+    <table width="100%" style="cell-padding:5px;position:absolute;top:250px;">
+        <tr>
+            <td valign="middle" align="center" onclick="myInfoClicked();"><img src="images/profile.png" width="100px"/></td>
+            <td valign="middle" align="center" onclick="accHelpClicked();"><img src="images/toolbox.png" width="100px"/><td>
+        </tr>
+        <tr><td align="center"><span style="color:black;">My Profile</span></td><td align="center"><span style="color:black;">Accident Toolkit</span></td></tr>
+    </table>
+</div>
+
+<!-- EDIT PROFILE PAGE -->
+<script type="text/javascript" charset="utf-8">
+// Global Variable
+var profileChanged = false;         // Profile has changed  
+    
+// Hook transitions
+try {
+    dijit.byId('myInfo').onBeforeTransitionIn = enteringMyInfo;
+    dijit.byId('myInfo').onBeforeTransitionOut = leavingMyInfo;
+} catch (e) {
+    console.log("  - error hooking transitions: "+e);
+}
+
+/**
+ * Entering my info screen
+ */
+function enteringMyInfo(moveTo, dir, transition, context, method) {
+    cur = 'myInfo';
+    back = 'home';
+}
+
+/**
+ * Leaving my info screen
+ */
+function leavingMyInfo(moveTo, dir, transition, context, method) {
+    storeProfile(true);
+}   
+
+/**
+ * Set flag indicating that profile has been modified
+ */
+function profileChanged() {
+    console.log("profileChanged()");
+    profileChanged = true;
+}
+
+/**
+ * The Add Vehicle menu item was clicked
+ */
+function addVehicleClicked() {
+    console.log("addVehicleClicked()");
+
+    // Save changes to profile
+    storeProfile(true);
+
+    // Set the ownerId of the form to the profileId
+    document.getElementById("ownerId").value = document.getElementById("profileId").value;
+}
+</script>
+<div id="myInfo" dojoType="dojox.mobile.View">
+    <h1 dojoType="dojox.mobile.Heading" back="Home" moveTo="home">My Info</h1>
+    <ul dojoType="dojox.mobile.RoundRectList">
+        <li dojoType="dojox.mobile.ListItem"><label class="itemText" for="fName" >First Name:</label><input class="itemInput" id="fName" type="text" onChange="profileChanged();"/></li>
+        <li dojoType="dojox.mobile.ListItem"><label class="itemText" for="lName" >Last Name:</label><input class="itemInput" id="lName" type="text" onChange="profileChanged();"></li>
+        <li dojoType="dojox.mobile.ListItem"><label class="itemText" for="street" >Street:</label><input class="itemInput" id="street" type="text" onChange="profileChanged();"></li>
+        <li dojoType="dojox.mobile.ListItem"><label class="itemText" for="city" >City:</label><input class="itemInput" id="city" type="text" onChange="profileChanged();"></li>
+        <li dojoType="dojox.mobile.ListItem"><label class="itemText" for="state" >State:</label>
+            <select class="itemInput" id="state" type="text" onChange="profileChanged();">
+            <option value="AL">Alabama</option>
+            <option value="AK">Alaska</option>
+            <option value="AZ">Arizona</option>
+            <option value="AR">Arkansas</option>
+            <option value="CA">California</option>
+            <option value="CO">Colorado</option>
+            <option value="CT">Connecticut</option>
+            <option value="DE">Delaware</option>
+            <option value="DC">District of Columbia</option>
+            <option value="FL">Florida</option>
+            <option value="GA">Georgia</option>
+            <option value="GU">Guam</option>
+            <option value="HI">Hawaii</option>
+            <option value="ID">Idaho</option>
+            <option value="IL">Illinois</option>
+            <option value="IN">Indiana</option>
+            <option value="IA">Iowa</option>
+            <option value="KS">Kansas</option>
+            <option value="KY">Kentucky</option>
+            <option value="LA">Louisiana</option>
+            <option value="ME">Maine</option>
+            <option value="MH">Marshall Islands</option>
+            <option value="MD">Maryland</option>
+            <option value="MA">Massachusetts</option>
+            <option value="MI">Michigan</option>
+            <option value="MN">Minnesota</option>
+            <option value="MS">Mississippi</option>
+            <option value="MO">Missouri</option>
+            <option value="MT">Montana</option>
+            <option value="NE">Nebraska</option>
+            <option value="NV">Nevada</option>
+            <option value="NH">New Hampshire</option>
+            <option value="NJ">New Jersey</option>
+            <option value="NM">New Mexico</option>
+            <option value="NY">New York</option>
+            <option value="NC">North Carolina</option>
+            <option value="ND">North Dakota</option>
+            <option value="OH">Ohio</option>
+            <option value="OK">Oklahoma</option>
+            <option value="OR">Oregon</option>
+            <option value="PA">Pennsylvania</option>
+            <option value="RI">Rhode Island</option>
+            <option value="SC">South Carolina</option>
+            <option value="SD">South Dakota</option>
+            <option value="TN">Tennessee</option>
+            <option value="TX">Texas</option>
+            <option value="UT">Utah</option>
+            <option value="VT">Vermont</option>
+            <option value="VA">Virginia</option>
+            <option value="WA">Washington</option>
+            <option value="WV">West Virginia</option>
+            <option value="WI">Wisconsin</option>
+            <option value="WY">Wyoming</option>
+        </select>
+        </li>
+        <li dojoType="dojox.mobile.ListItem"><label class="itemText" for="zip" >Zip:</label><input class="itemInput" id="zip" type="number" size="5" onChange="profileChanged();"></li>
+        <li dojoType="dojox.mobile.ListItem"><label class="itemText" for="phone" >Phone:</label><input class="itemInput" id="phone" type="tel" onChange="profileChanged();"></li>
+        <li dojoType="dojox.mobile.ListItem"><label class="itemText" for="email" >Email:</label><input class="itemInput" id="email" type="email" onChange="profileChanged();"></li>
+        <li dojoType="dojox.mobile.ListItem"><label class="itemText" for="licenseNo" >License #:</label><input class="itemInput" id="licenseNo" type="number" onChange="profileChanged();"></li>
+    </ul>
+    <input type="hidden" id="profileId" />
+    <input type="hidden" id="vCount" />
+    <h2 dojoType="dojox.mobile.RoundRectCategory">My Vehicles</h2>
+    <ul dojoType="dojox.mobile.RoundRectList" id="vList">
+        <li dojoType="dojox.mobile.ListItem" id="addItem" moveTo="addVehicle" transition="slide" onclick="addVehicleClicked();">
+            Add Vehicle
+        </li>
+    </ul>
+</div>
+
+<!-- ADD VEHICLE PAGE -->
+<script type="text/javascript" charset="utf-8">
+// Global varialbe
+var vehicleChanged = false;
+
+// Hook transitions
+try {
+    dijit.byId('addVehicle').onBeforeTransitionIn = enteringAddVehicle;
+    dijit.byId('addVehicle').onBeforeTransitionOut = leavingAddVehicle;
+} catch (e) {
+    console.log("  - error hooking transitions: "+e);
+}
+
+/**
+ * Entering add vehicle screen
+ */
+function enteringAddVehicle(moveTo, dir, transition, context, method) {
+    cur = 'addVehicle';
+    back = 'myInfo';
+}
+
+/**
+ * Leaving add vehicle screen
+ */
+function leavingAddVehicle(moveTo, dir, transition, context, method) {
+    storeVehicle();
+    loadProfile(true);
+    clearVehicleForm();
+}
+
+/**
+ * Set flag indicating that vehicle has been modified
+ */
+function vehicleChanged() {
+    console.log("vehicleChanged()");
+    vehicleChanged = true;
+}
+</script>
+<div dojoType="dojox.mobile.View" id="addVehicle">
+    <h1 dojoType="dojox.mobile.Heading" back="My Info" moveTo="myInfo">Add Vehicle</h1>
+    <h2 dojoType="dojox.mobile.RoundRectCategory">Add Vehicle</h2>
+    <ul dojoType="dojox.mobile.RoundRectList" >
+        <li dojoType="dojox.mobile.ListItem"><label class="itemText" for="vName" >Nickname:</label><input class="itemInput" id="vName" type="text" onChange="vehicleChanged();" /></li>
+        <li dojoType="dojox.mobile.ListItem"><label class="itemText" for="vMake" >Make:</label><input class="itemInput" id="vMake" type="text" onChange="vehicleChanged();" /></li>
+        <li dojoType="dojox.mobile.ListItem"><label class="itemText" for="vModel" >Model:</label><input class="itemInput" id="vModel" type="text" onChange="vehicleChanged();" /></li>
+        <li dojoType="dojox.mobile.ListItem"><label class="itemText" for="vYear" >Year:</label><input class="itemInput" id="vYear" type="number" onChange="vehicleChanged();" /></li>
+        <li dojoType="dojox.mobile.ListItem"><label class="itemText" for="vPlate" >Plate:</label><input class="itemInput" id="vPlate" type="text" onChange="vehicleChanged();" /></li>
+        <li dojoType="dojox.mobile.ListItem"><label class="itemText" for="vin" >VIN:</label><input class="itemInput" id="vin" type="number" onChange="vehicleChanged();" /></li>
+    </ul>
+    <input type="hidden" id="vehicleId" /><input type="hidden" id="ownerId" />
+</div>
+</body>
+</html>

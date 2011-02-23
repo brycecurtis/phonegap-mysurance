@@ -143,11 +143,11 @@ function getDatabase(){
  */
 function storeProfile(isPrimary) {
     console.log("storeProfile");
-    if (!mysurance.profileChanged) {
+    if (!profileChanged) {
         console.log(" - not changed: just return");
         return;
     }
-    mysurance.profileChanged = false;
+    profileChanged = false;
 
     // needs error handling!
     var values = new Array(profileFields.length);
@@ -196,7 +196,7 @@ function storeProfile(isPrimary) {
  */
 function loadProfile(isPrimary) {
     console.log("loadProfile("+isPrimary+")");
-    mysurance.profileChanged = false;
+    profileChanged = false;
 
     // Clear all vehicles except "Add Vehicle" node
     var vList = document.getElementById("vList");
@@ -293,11 +293,11 @@ function loadProfile(isPrimary) {
  */
 function storeVehicle() {
     console.log("storeVehicle()");
-    if (!mysurance.vehicleChanged) {
+    if (!vehicleChanged) {
         console.log(" - not changed: just return");
         return;
     }
-    mysurance.vehicleChanged = false;
+    vehicleChanged = false;
 
     // obvious overlap with storeProfile that could be combined
     // needs error handling!
@@ -372,7 +372,7 @@ function clearVehicleForm() {
  */
 function loadVehicle(index) {
     console.log("loadVehicle("+index+")");
-    mysurance.vehicleChanged = false;
+    vehicleChanged = false;
 
     gDB.transaction(function(transaction){
         transaction.executeSql('SELECT * FROM vehicles WHERE vehicleId=?;',
@@ -439,11 +439,11 @@ function loadAccidentInfo() {
  */
 function storeAccidentInfo() {
     console.log("storeAccidentInfo()");
-    if (!mysurance.accInfoChanged) {
+    if (!accInfoChanged) {
         console.log(" - not changed: just return");
         return;
     }
-    mysurance.accInfoChanged = false;
+    accInfoChanged = false;
 
     gDB.transaction(
         function(transaction) {
@@ -505,11 +505,11 @@ function loadLocation() {
  */
 function storeLocation() {
     console.log("storeLocation()");
-    if (!mysurance.locationChanged) {
+    if (!locationChanged) {
         console.log(" - not changed: just return");
         return;
     }
-    mysurance.locationChanged = false;
+    locationChanged = false;
 
     gDB.transaction(
         function(transaction) {
@@ -576,6 +576,36 @@ function storePhoto(id, imageData) {
             transaction.executeSql(sql, [],
                 function() { },
                 function() { console.log("Error executing: "+sql); }
+            );
+        },
+        basicTxnErrorDB,
+        basicTxnSuccessDB
+    );
+}
+
+/**
+ * Get photo from database
+ *
+ * @param index         The photo id
+ */
+function getPhoto(id) {
+    console.log("getPhoto("+id+")");
+
+    gDB.transaction(
+        function(transaction) {
+            var sql = 'SELECT * FROM photos WHERE key = ' + id;
+            transaction.executeSql(sql, [],
+                function(transaction, results) {
+                    for (var i=0; i<results.rows.length; i++) {
+                        var row = results.rows.item(i);
+                        var value = row['value'];
+                        uploadPhoto(id, value);
+                    }
+                },
+                function(transaction, error) {
+                    console.log("Error retreiving photo location.");
+                    return false;
+                }
             );
         },
         basicTxnErrorDB,
