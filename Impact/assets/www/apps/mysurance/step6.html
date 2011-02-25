@@ -38,7 +38,6 @@ function onBodyLoad()
     // Listen for back button
     document.addEventListener("backKeyDown", backPressed);
 
-
     // Hook transitions
     try {
         dijit.byId('home').onBeforeTransitionIn = enteringHome;
@@ -92,7 +91,7 @@ function onDeviceReady() {
 </script>
 </head>
 <body onload="onBodyLoad();">
-	
+    
 <!-- HOME PAGE -->
 <script type="text/javascript" charset="utf-8">
 
@@ -129,14 +128,7 @@ function accHelpClicked() {
 <script type="text/javascript" charset="utf-8">
 // Global Variable
 var profileChanged = false;         // Profile has changed  
-    
-// Hook transitions
-try {
-    dijit.byId('myInfo').onBeforeTransitionIn = enteringMyInfo;
-    dijit.byId('myInfo').onBeforeTransitionOut = leavingMyInfo;
-} catch (e) {
-    console.log("  - error hooking transitions: "+e);
-}
+var userProfileId = null;
 
 /**
  * Entering my info screen
@@ -156,8 +148,8 @@ function leavingMyInfo(moveTo, dir, transition, context, method) {
 /**
  * Set flag indicating that profile has been modified
  */
-function profileChanged() {
-    console.log("profileChanged()");
+function userProfileChanged() {
+    console.log("userProfileChanged()");
     profileChanged = true;
 }
 
@@ -173,16 +165,66 @@ function addVehicleClicked() {
     // Set the ownerId of the form to the profileId
     document.getElementById("ownerId").value = document.getElementById("profileId").value;
 }
+
+/**
+ * Upload profile
+ */
+function uploadProfile() {
+    var request = new XMLHttpRequest();
+	if (userProfileId == null) {
+		request.open("POST", "http://192.168.78.128:9081/Impact2011Demo/rest/userProfile", true);
+	} else {
+        request.open("POST", "http://192.168.78.128:9081/Impact2011Demo/rest/userProfile/"+userProfileId, true);
+	}
+	request.setRequestHeader("Content-type", "application/json");
+    request.onreadystatechange = function() {//Call a function when the state changes.
+        console.log("state = " + request.readyState);
+        if(request.readyState == 4) {
+			console.log("*"+request.status+"*");
+            console.log("*"+request.responseText+"*");
+			if (userProfileId == null) {
+				var location = request.getResponseHeader("Location");
+				userProfileId = location.substring(location.lastIndexOf('/') + 1, location.length);
+				console.log(userProfileId);
+			}
+        }
+    }
+	sendValue = stringifyProfile();
+	console.log("Profile: " + sendValue);
+    console.log("sending user profile");
+	request.send(sendValue);
+}
+
+/**
+ * Create profile JSON
+ */
+function stringifyProfile() {
+	// Build the profile into a JSON message
+    var profile = '{';
+    if (userProfileId != null) {
+          profile = profile + '"uniqueId": ' + '"' + userProfileId + '", ';
+    }
+    profile = profile + '"fName": ' + '"' + document.getElementById("fName").value + '", ';
+    profile = profile + '"lName": ' + '"' + document.getElementById("lName").value + '", ';
+    profile = profile + '"street": ' + '"' + document.getElementById("street").value + '", ';
+    profile = profile + '"city": ' + '"' + document.getElementById("city").value + '", ';
+    profile = profile + '"state": ' + '"' + document.getElementById("state").value + '", ';
+    profile = profile + '"zip": ' + '"' + document.getElementById("zip").value + '", ';
+    profile = profile + '"phone": ' + '"' + document.getElementById("phone").value + '", ';
+    profile = profile + '"email": ' + '"' + document.getElementById("email").value + '", ';
+    profile = profile + '"licenseNo": ' + '"' + document.getElementById("licenseNo").value + '"}';
+	return profile;
+}
 </script>
 <div id="myInfo" dojoType="dojox.mobile.View">
     <h1 dojoType="dojox.mobile.Heading" back="Home" moveTo="home">My Info</h1>
     <ul dojoType="dojox.mobile.RoundRectList">
-        <li dojoType="dojox.mobile.ListItem"><label class="itemText" for="fName" >First Name:</label><input class="itemInput" id="fName" type="text" onChange="profileChanged();"/></li>
-        <li dojoType="dojox.mobile.ListItem"><label class="itemText" for="lName" >Last Name:</label><input class="itemInput" id="lName" type="text" onChange="profileChanged();"></li>
-        <li dojoType="dojox.mobile.ListItem"><label class="itemText" for="street" >Street:</label><input class="itemInput" id="street" type="text" onChange="profileChanged();"></li>
-        <li dojoType="dojox.mobile.ListItem"><label class="itemText" for="city" >City:</label><input class="itemInput" id="city" type="text" onChange="profileChanged();"></li>
+        <li dojoType="dojox.mobile.ListItem"><label class="itemText" for="fName" >First Name:</label><input class="itemInput" id="fName" type="text" onChange="userProfileChanged();"/></li>
+        <li dojoType="dojox.mobile.ListItem"><label class="itemText" for="lName" >Last Name:</label><input class="itemInput" id="lName" type="text" onChange="userProfileChanged();"></li>
+        <li dojoType="dojox.mobile.ListItem"><label class="itemText" for="street" >Street:</label><input class="itemInput" id="street" type="text" onChange="userProfileChanged();"></li>
+        <li dojoType="dojox.mobile.ListItem"><label class="itemText" for="city" >City:</label><input class="itemInput" id="city" type="text" onChange="userProfileChanged();"></li>
         <li dojoType="dojox.mobile.ListItem"><label class="itemText" for="state" >State:</label>
-            <select class="itemInput" id="state" type="text" onChange="profileChanged();">
+            <select class="itemInput" id="state" type="text" onChange="userProfileChanged();">
             <option value="AL">Alabama</option>
             <option value="AK">Alaska</option>
             <option value="AZ">Arizona</option>
@@ -238,10 +280,11 @@ function addVehicleClicked() {
             <option value="WY">Wyoming</option>
         </select>
         </li>
-        <li dojoType="dojox.mobile.ListItem"><label class="itemText" for="zip" >Zip:</label><input class="itemInput" id="zip" type="number" size="5" onChange="profileChanged();"></li>
-        <li dojoType="dojox.mobile.ListItem"><label class="itemText" for="phone" >Phone:</label><input class="itemInput" id="phone" type="tel" onChange="profileChanged();"></li>
-        <li dojoType="dojox.mobile.ListItem"><label class="itemText" for="email" >Email:</label><input class="itemInput" id="email" type="email" onChange="profileChanged();"></li>
-        <li dojoType="dojox.mobile.ListItem"><label class="itemText" for="licenseNo" >License #:</label><input class="itemInput" id="licenseNo" type="number" onChange="profileChanged();"></li>
+        <li dojoType="dojox.mobile.ListItem"><label class="itemText" for="zip" >Zip:</label><input class="itemInput" id="zip" type="number" size="5" onChange="userProfileChanged();"></li>
+        <li dojoType="dojox.mobile.ListItem"><label class="itemText" for="phone" >Phone:</label><input class="itemInput" id="phone" type="tel" onChange="userProfileChanged();"></li>
+        <li dojoType="dojox.mobile.ListItem"><label class="itemText" for="email" >Email:</label><input class="itemInput" id="email" type="email" onChange="userProfileChanged();"></li>
+        <li dojoType="dojox.mobile.ListItem"><label class="itemText" for="licenseNo" >License #:</label><input class="itemInput" id="licenseNo" type="number" onChange="userProfileChanged();"></li>
+        <li dojoType="dojox.mobile.ListItem"><button id="profileBtn" dojoType1="dojox.mobile.Button" onclick="uploadProfile();">Upload Profile</button></li>
     </ul>
     <input type="hidden" id="profileId" />
     <input type="hidden" id="vCount" />
@@ -257,14 +300,7 @@ function addVehicleClicked() {
 <script type="text/javascript" charset="utf-8">
 // Global varialbe
 var vehicleChanged = false;
-
-// Hook transitions
-try {
-    dijit.byId('addVehicle').onBeforeTransitionIn = enteringAddVehicle;
-    dijit.byId('addVehicle').onBeforeTransitionOut = leavingAddVehicle;
-} catch (e) {
-    console.log("  - error hooking transitions: "+e);
-}
+var vehicleId = null;
 
 /**
  * Entering add vehicle screen
@@ -290,6 +326,52 @@ function vehicleChanged() {
     console.log("vehicleChanged()");
     vehicleChanged = true;
 }
+/**
+ * Upload profile
+ */
+function uploadVehicle() {
+    var request = new XMLHttpRequest();
+    if (vehicleId == null) {
+        request.open("POST", "http://192.168.78.128:9081/Impact2011Demo/rest/vehicle", true);
+    } else {
+        request.open("POST", "http://192.168.78.128:9081/Impact2011Demo/rest/vehicle/"+userProfileId, true);
+    }
+    request.setRequestHeader("Content-type", "application/json");
+    request.onreadystatechange = function() {//Call a function when the state changes.
+        console.log("state = " + request.readyState);
+        if(request.readyState == 4) {
+            console.log("*"+request.status+"*");
+            console.log("*"+request.responseText+"*");
+            if (userProfileId == null) {
+                var location = request.getResponseHeader("Location");
+                vehicleId = location.substring(location.lastIndexOf('/') + 1, location.length);
+                console.log(vehicleId);
+            }
+        }
+    }
+    sendValue = stringifyVehicle();
+    console.log("Vehicle: " + sendValue);
+    console.log("sending user profile");
+    request.send(sendValue);
+}
+
+/**
+ * Create vehicle JSON
+ */
+function stringifyVehicle() {
+    // Build the profile into a JSON message
+    var profile = '{';
+	if (vehicleId != null) {
+		  profile = profile + '"uniqueId": ' + '"' + vehicleId + '", ';
+	}
+	profile = profile + '"vName": ' + '"' + document.getElementById("vName").value + '", ';
+    profile = profile + '"vMake": ' + '"' + document.getElementById("vMake").value + '", ';
+    profile = profile + '"vModel": ' + '"' + document.getElementById("vModel").value + '", ';
+    profile = profile + '"vYear": ' + '"' + document.getElementById("vYear").value + '", ';
+    profile = profile + '"vPlate": ' + '"' + document.getElementById("vPlate").value + '", ';
+    profile = profile + '"vNumber": ' + '"' + document.getElementById("vin").value + '"}';
+    return profile;
+}
 </script>
 <div dojoType="dojox.mobile.View" id="addVehicle">
     <h1 dojoType="dojox.mobile.Heading" back="My Info" moveTo="myInfo">Add Vehicle</h1>
@@ -301,19 +383,13 @@ function vehicleChanged() {
         <li dojoType="dojox.mobile.ListItem"><label class="itemText" for="vYear" >Year:</label><input class="itemInput" id="vYear" type="number" onChange="vehicleChanged();" /></li>
         <li dojoType="dojox.mobile.ListItem"><label class="itemText" for="vPlate" >Plate:</label><input class="itemInput" id="vPlate" type="text" onChange="vehicleChanged();" /></li>
         <li dojoType="dojox.mobile.ListItem"><label class="itemText" for="vin" >VIN:</label><input class="itemInput" id="vin" type="number" onChange="vehicleChanged();" /></li>
+        <li dojoType="dojox.mobile.ListItem"><button id="profileBtn" dojoType1="dojox.mobile.Button" onclick="uploadVehicle();">Upload Vehicle</button></li>
     </ul>
     <input type="hidden" id="vehicleId" /><input type="hidden" id="ownerId" />
 </div>
 
 <!-- ACCIDENT TOOLKIT PAGE -->
 <script type="text/javascript" charset="utf-8">
-// Hook transitions
-try {
-    dijit.byId('accHelp').onBeforeTransitionIn = enteringAccHelp;
-} catch (e) {
-    console.log("  - error hooking transitions: "+e);
-}
-
 /**
  * Entering accident toolkit screen
  */
@@ -347,20 +423,12 @@ function mapQuery(queryString) {
 // Global variable
 var accInfoChanged = false;
 
-// Hook transitions
-try {
-    dijit.byId('accInfo').onBeforeTransitionIn = enteringAccInfo;
-    dijit.byId('accInfo').onBeforeTransitionOut = leavingAccInfo;
-} catch (e) {
-    console.log("  - error hooking transitions: "+e);
-}
-
 /**
  * Entering accident info screen
  */
 function enteringAccInfo(moveTo, dir, transition, context, method) {
     cur = 'accInfo';
-    s = 'accHelp';
+    back = 'accHelp';
     loadAccidentInfo();
 }
 
@@ -400,5 +468,6 @@ function accInfoChanged() {
         <li dojoType="dojox.mobile.ListItem"><label class="itemText" for="vinAcc" >VIN:</label><input class="itemInput" id="vinAcc" type="number" onChange="accInfoChanged();" /></li>
     </ul>
 </div>
+
 </body>
 </html>

@@ -38,7 +38,6 @@ function onBodyLoad()
     // Listen for back button
     document.addEventListener("backKeyDown", backPressed);
 
-
     // Hook transitions
     try {
         dijit.byId('home').onBeforeTransitionIn = enteringHome;
@@ -87,9 +86,10 @@ function onDeviceReady() {
 </script>
 </head>
 <body onload="onBodyLoad();">
-	
+    
 <!-- HOME PAGE -->
 <script type="text/javascript" charset="utf-8">
+
 /**
  * Display profile panel
  */
@@ -122,15 +122,8 @@ function accHelpClicked() {
 <!-- EDIT PROFILE PAGE -->
 <script type="text/javascript" charset="utf-8">
 // Global Variable
-var profileChanged = false;         // Profile has changed	
-	
-// Hook transitions
-try {
-    dijit.byId('myInfo').onBeforeTransitionIn = enteringMyInfo;
-    dijit.byId('myInfo').onBeforeTransitionOut = leavingMyInfo;
-} catch (e) {
-    console.log("  - error hooking transitions: "+e);
-}
+var profileChanged = false;         // Profile has changed  
+var userProfileId = null;
 
 /**
  * Entering my info screen
@@ -150,8 +143,8 @@ function leavingMyInfo(moveTo, dir, transition, context, method) {
 /**
  * Set flag indicating that profile has been modified
  */
-function profileChanged() {
-    console.log("profileChanged()");
+function userProfileChanged() {
+    console.log("userProfileChanged()");
     profileChanged = true;
 }
 
@@ -167,16 +160,66 @@ function addVehicleClicked() {
     // Set the ownerId of the form to the profileId
     document.getElementById("ownerId").value = document.getElementById("profileId").value;
 }
+
+/**
+ * Upload profile
+ */
+function uploadProfile() {
+    var request = new XMLHttpRequest();
+	if (userProfileId == null) {
+		request.open("POST", "http://192.168.78.128:9081/Impact2011Demo/rest/userProfile", true);
+	} else {
+        request.open("POST", "http://192.168.78.128:9081/Impact2011Demo/rest/userProfile/"+userProfileId, true);
+	}
+	request.setRequestHeader("Content-type", "application/json");
+    request.onreadystatechange = function() {//Call a function when the state changes.
+        console.log("state = " + request.readyState);
+        if(request.readyState == 4) {
+			console.log("*"+request.status+"*");
+            console.log("*"+request.responseText+"*");
+			if (userProfileId == null) {
+				var location = request.getResponseHeader("Location");
+				userProfileId = location.substring(location.lastIndexOf('/') + 1, location.length);
+				console.log(userProfileId);
+			}
+        }
+    }
+	sendValue = stringifyProfile();
+	console.log("Profile: " + sendValue);
+    console.log("sending user profile");
+	request.send(sendValue);
+}
+
+/**
+ * Create profile JSON
+ */
+function stringifyProfile() {
+	// Build the profile into a JSON message
+    var profile = '{';
+    if (userProfileId != null) {
+          profile = profile + '"uniqueId": ' + '"' + userProfileId + '", ';
+    }
+    profile = profile + '"fName": ' + '"' + document.getElementById("fName").value + '", ';
+    profile = profile + '"lName": ' + '"' + document.getElementById("lName").value + '", ';
+    profile = profile + '"street": ' + '"' + document.getElementById("street").value + '", ';
+    profile = profile + '"city": ' + '"' + document.getElementById("city").value + '", ';
+    profile = profile + '"state": ' + '"' + document.getElementById("state").value + '", ';
+    profile = profile + '"zip": ' + '"' + document.getElementById("zip").value + '", ';
+    profile = profile + '"phone": ' + '"' + document.getElementById("phone").value + '", ';
+    profile = profile + '"email": ' + '"' + document.getElementById("email").value + '", ';
+    profile = profile + '"licenseNo": ' + '"' + document.getElementById("licenseNo").value + '"}';
+	return profile;
+}
 </script>
 <div id="myInfo" dojoType="dojox.mobile.View">
     <h1 dojoType="dojox.mobile.Heading" back="Home" moveTo="home">My Info</h1>
     <ul dojoType="dojox.mobile.RoundRectList">
-        <li dojoType="dojox.mobile.ListItem"><label class="itemText" for="fName" >First Name:</label><input class="itemInput" id="fName" type="text" onChange="profileChanged();"/></li>
-        <li dojoType="dojox.mobile.ListItem"><label class="itemText" for="lName" >Last Name:</label><input class="itemInput" id="lName" type="text" onChange="profileChanged();"></li>
-        <li dojoType="dojox.mobile.ListItem"><label class="itemText" for="street" >Street:</label><input class="itemInput" id="street" type="text" onChange="profileChanged();"></li>
-        <li dojoType="dojox.mobile.ListItem"><label class="itemText" for="city" >City:</label><input class="itemInput" id="city" type="text" onChange="profileChanged();"></li>
+        <li dojoType="dojox.mobile.ListItem"><label class="itemText" for="fName" >First Name:</label><input class="itemInput" id="fName" type="text" onChange="userProfileChanged();"/></li>
+        <li dojoType="dojox.mobile.ListItem"><label class="itemText" for="lName" >Last Name:</label><input class="itemInput" id="lName" type="text" onChange="userProfileChanged();"></li>
+        <li dojoType="dojox.mobile.ListItem"><label class="itemText" for="street" >Street:</label><input class="itemInput" id="street" type="text" onChange="userProfileChanged();"></li>
+        <li dojoType="dojox.mobile.ListItem"><label class="itemText" for="city" >City:</label><input class="itemInput" id="city" type="text" onChange="userProfileChanged();"></li>
         <li dojoType="dojox.mobile.ListItem"><label class="itemText" for="state" >State:</label>
-            <select class="itemInput" id="state" type="text" onChange="profileChanged();">
+            <select class="itemInput" id="state" type="text" onChange="userProfileChanged();">
             <option value="AL">Alabama</option>
             <option value="AK">Alaska</option>
             <option value="AZ">Arizona</option>
@@ -232,10 +275,11 @@ function addVehicleClicked() {
             <option value="WY">Wyoming</option>
         </select>
         </li>
-        <li dojoType="dojox.mobile.ListItem"><label class="itemText" for="zip" >Zip:</label><input class="itemInput" id="zip" type="number" size="5" onChange="profileChanged();"></li>
-        <li dojoType="dojox.mobile.ListItem"><label class="itemText" for="phone" >Phone:</label><input class="itemInput" id="phone" type="tel" onChange="profileChanged();"></li>
-        <li dojoType="dojox.mobile.ListItem"><label class="itemText" for="email" >Email:</label><input class="itemInput" id="email" type="email" onChange="profileChanged();"></li>
-        <li dojoType="dojox.mobile.ListItem"><label class="itemText" for="licenseNo" >License #:</label><input class="itemInput" id="licenseNo" type="number" onChange="profileChanged();"></li>
+        <li dojoType="dojox.mobile.ListItem"><label class="itemText" for="zip" >Zip:</label><input class="itemInput" id="zip" type="number" size="5" onChange="userProfileChanged();"></li>
+        <li dojoType="dojox.mobile.ListItem"><label class="itemText" for="phone" >Phone:</label><input class="itemInput" id="phone" type="tel" onChange="userProfileChanged();"></li>
+        <li dojoType="dojox.mobile.ListItem"><label class="itemText" for="email" >Email:</label><input class="itemInput" id="email" type="email" onChange="userProfileChanged();"></li>
+        <li dojoType="dojox.mobile.ListItem"><label class="itemText" for="licenseNo" >License #:</label><input class="itemInput" id="licenseNo" type="number" onChange="userProfileChanged();"></li>
+        <li dojoType="dojox.mobile.ListItem"><button id="profileBtn" dojoType1="dojox.mobile.Button" onclick="uploadProfile();">Upload Profile</button></li>
     </ul>
     <input type="hidden" id="profileId" />
     <input type="hidden" id="vCount" />
