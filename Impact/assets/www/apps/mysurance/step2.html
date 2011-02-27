@@ -104,9 +104,14 @@ function accHelpClicked() {
     var el = dijit.byId("home");
     el.performTransition("accHelp", 1, 'slide');
 }
+
+function serverClicked() {
+    var el = dijit.byId("home");
+    el.performTransition("appSettings", 1, 'slide');
+}
 </script>
 <div id="home" dojoType="dojox.mobile.View" selected="true">
-    <h1 dojoType="dojox.mobile.Heading">Mysurance</h1>
+    <h1 style="height: 32px; vertical-align: middle" dojoType="dojox.mobile.Heading">Mysurance<img style="float: right" onclick="serverClicked();" src="images/settings.png" /></h1>
     <img src="images/splash.jpg" style="position:absolute:top:0px;left:0px;" />
     <table width="100%" style="cell-padding:5px;position:absolute;top:250px;">
         <tr>
@@ -116,5 +121,6 @@ function accHelpClicked() {
         <tr><td align="center"><span style="color:black;">My Profile</span></td><td align="center"><span style="color:black;">Accident Toolkit</span></td></tr>
     </table>
 </div>
+
 </body>
 </html>

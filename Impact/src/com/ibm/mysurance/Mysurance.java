@@ -9,6 +9,6 @@ public class Mysurance extends DroidGap {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        super.loadUrl("file:///android_asset/www/apps/mysurance/step8.html");
+        super.loadUrl("file:///android_asset/www/apps/mysurance/step9.html");
     }
 }

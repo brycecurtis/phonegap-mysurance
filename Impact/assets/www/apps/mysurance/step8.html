@@ -42,6 +42,7 @@ function onBodyLoad()
     try {
         dijit.byId('home').onBeforeTransitionIn = enteringHome;
         dijit.byId('home').onBeforeTransitionOut = leavingHome;
+        dijit.byId('appSettings').onBeforeTransitionIn = enteringServer;
         dijit.byId('myInfo').onBeforeTransitionIn = enteringMyInfo;
         dijit.byId('myInfo').onBeforeTransitionOut = leavingMyInfo;
         dijit.byId('addVehicle').onBeforeTransitionIn = enteringAddVehicle;
@@ -51,7 +52,6 @@ function onBodyLoad()
         dijit.byId('accInfo').onBeforeTransitionOut = leavingAccInfo;
         dijit.byId('accLocation').onBeforeTransitionIn = enteringAccLocation;
         dijit.byId('accLocation').onBeforeTransitionOut = leavingAccLocation;
-        dijit.byId('accPhotos').onBeforeTransitionIn = enteringAccPhotos;
     } catch (e) {
         console.log("  - error hooking transitions: "+e);
     }
@@ -114,9 +114,14 @@ function accHelpClicked() {
     var el = dijit.byId("home");
     el.performTransition("accHelp", 1, 'slide');
 }
+
+function serverClicked() {
+    var el = dijit.byId("home");
+    el.performTransition("appSettings", 1, 'slide');
+}
 </script>
 <div id="home" dojoType="dojox.mobile.View" selected="true">
-    <h1 dojoType="dojox.mobile.Heading">Mysurance</h1>
+    <h1 style="height: 32px; vertical-align: middle" dojoType="dojox.mobile.Heading">Mysurance<img style="float: right" onclick="serverClicked();" src="images/settings.png" /></h1>
     <img src="images/splash.jpg" style="position:absolute:top:0px;left:0px;" />
     <table width="100%" style="cell-padding:5px;position:absolute;top:250px;">
         <tr>
@@ -125,6 +130,40 @@ function accHelpClicked() {
         </tr>
         <tr><td align="center"><span style="color:black;">My Profile</span></td><td align="center"><span style="color:black;">Accident Toolkit</span></td></tr>
     </table>
+</div>
+
+<!-- APPLICATION SETTINGS PAGE -->
+<script type="text/javascript" charset="utf-8">
+// Global variable
+var serverAddress = "192.168.78.128:9081";
+function updateServerAddress() {
+    serverAddress = document.getElementById("serverAddr").value
+}
+
+/**
+ * Entering my info screen
+ */
+function enteringServer(moveTo, dir, transition, context, method) {
+    cur = 'appSettings';
+    back = 'home';
+}
+
+/**
+ * Leaving my info screen
+ */
+function leavingServer(moveTo, dir, transition, context, method) {
+	var addr = document.getElementById("serverAddr").value
+    if (addr != null || addr != "undefined" || addr != null) {
+		serverAddress = addr;
+	}
+}   
+
+</script>
+<div dojoType="dojox.mobile.View" id="appSettings">
+    <h1 dojoType="dojox.mobile.Heading" back="Settings" moveTo="home">Settings</h1>
+    <ul dojoType="dojox.mobile.RoundRectList">
+        <li dojoType="dojox.mobile.ListItem"><label class="itemText" for="serverAddr" >Server:</label><input class="itemInput" id="serverAddr" type="text" onChange="updateServerAddress();"></li>
+    </ul>
 </div>
 
 <!-- EDIT PROFILE PAGE -->
@@ -175,9 +214,9 @@ function addVehicleClicked() {
 function uploadProfile() {
     var request = new XMLHttpRequest();
 	if (userProfileId == null) {
-		request.open("POST", "http://192.168.78.128:9081/Impact2011Demo/rest/userProfile", true);
+		request.open("POST", "http://" + serverAddress + "/Impact2011Demo/rest/userProfile", true);
 	} else {
-        request.open("POST", "http://192.168.78.128:9081/Impact2011Demo/rest/userProfile/"+userProfileId, true);
+        request.open("POST", "http://" + serverAddress + "/Impact2011Demo/rest/userProfile/"+userProfileId, true);
 	}
 	request.setRequestHeader("Content-type", "application/json");
     request.onreadystatechange = function() {//Call a function when the state changes.
@@ -334,10 +373,10 @@ function vehicleChanged() {
  */
 function uploadVehicle() {
     var request = new XMLHttpRequest();
-    if (vehicleId == null) {
-        request.open("POST", "http://192.168.78.128:9081/Impact2011Demo/rest/vehicle", true);
+    if (userProfileId == null) {
+        request.open("POST", "http://" + serverAddress + "/Impact2011Demo/rest/vehicle", true);
     } else {
-        request.open("POST", "http://192.168.78.128:9081/Impact2011Demo/rest/vehicle/"+userProfileId, true);
+        request.open("POST", "http://" + serverAddress + "/Impact2011Demo/rest/vehicle/"+vehicleId, true);
     }
     request.setRequestHeader("Content-type", "application/json");
     request.onreadystatechange = function() {//Call a function when the state changes.
@@ -636,141 +675,5 @@ function onButtonLocClicked(e) {
     <center><button id="buttonLoc" dojoType1="dojox.mobile.Button" onclick="onButtonLocClicked();">Use Current Location</button></center>
 </div>
 
-<!-- ACCIDENT PHOTOS PAGE -->
-<script type="text/javascript" charset="utf-8">
-// Global variable
-var photoId = null;
-
-/**
- * Entering accident photo screen
- */
-function enteringAccPhotos(moveTo, dir, transition, context, method) {
-    cur = 'accPhotos';
-    back = 'accHelp';
-    loadPhotos();
-}
-
-/**
- * Take photo
- *
- * @param id        The photo id
- */
-function takePhoto(id) {
-    console.log("takePhoto("+id+")");
-    photoId = id;
-    navigator.camera.getPicture(photoSuccess, photoError, { quality: 20, destinationType: Camera.DestinationType.FILE_URI });
-};
-
-/**
- * Callback for successful photo taken
- *
- * @param imageData
- */
-function photoSuccess(imageData) {
-    console.log("photoSuccess() for photo "+photoId);
-    displayPhoto(photoId, imageData);
-    try {
-        storePhoto(photoId, imageData);
-    }
-    catch (e) {
-        console.log("Error saving photo to database: " + e);
-    }
-    photoId = "";
-};
-
-/**
- * Display photo
- *
- * @param id
- * @param imageData
- */
-function displayPhoto(id, imageData) {
-    console.log("displayPhoto("+id+","+imageData.length+")");
-    var el = document.getElementById("photo"+id+"-text");
-    if (imageData) {
-        el.style.visibility = 'hidden';
-        el.style.display = 'none';
-    }
-    else {
-        el.style.visibility = 'visible';
-        el.style.display = 'block';
-    }
-
-    var img = document.getElementById("photo"+id);
-    if (imageData) {
-        img.style.height = "150px";
-        img.style.visibility = 'visible';
-        img.style.display = 'block';
-        img.src = imageData;
-    }
-    else {
-        img.style.height = "150px";
-        img.style.visibility = 'hidden';
-        img.style.display = 'none';
-        img.src = "";
-    }
-};
-
-/**
- * Callback for camera error
- *
- * @param error
- */
-function photoError(error) {
-    console.log("photoError() for photo "+photoId+": " + error);
-};
-
-/**
- * Upload photo
- *
- * @param id
- */
-function uploadPhoto(id, imageURL) {
-	console.log(imageURL);
-	var options = new FileUploadOptions();
-	options.fileKey="file";
-	options.fileName="photo" + id + ".jpg";
-	options.mimeType="image/jpeg";
-	
-	var ft = new FileTransfer();
-	ft.upload(imageURL, "http://192.168.78.128:9081/Impact2011Demo/rest/upload", uploadSuccess, uploadError, options);
-}
-
-/**
- * Callback for successful upload
- */
-function uploadSuccess() {
-	alert("You photo has been uploaded to the server");
-}
-
-/**
- * Callback for unsuccessful upload
- * 
- * @param error
- */
-function uploadError(error) {
-    console.log("uploadError() for photo: " + error);
-}
-</script>
-<div dojoType="dojox.mobile.View" id="accPhotos">
-    <h1 dojoType="dojox.mobile.Heading" back="Accident" moveTo="accHelp">Photos</h1>
-    <div class="text">Please take photos from a safe location.</div>
-    <div dojoType="dojox.mobile.RoundRect">
-    <table width="100%" style="cell-padding:5px;">
-        <tr><td width="50%" align="center">Crash Scene</td><td width="50%" align="center">Your Car</td></tr>
-        <tr>
-            <td height="150" valign="middle" align="center" style="background:blue;" onclick="takePhoto(0);"><img id="photo0" src="" style="width:90%;visibility:hidden;display:none;"/><span id="photo0-text">Click to take picture</span></td>
-            <td height="150" valign="middle" align="center" style="background:blue;" onclick="takePhoto(1);"><img id="photo1" src="" style="width:90%;visibility:hidden;display:none;"/><span id="photo1-text">Click to take picture</span></td>
-        </tr>
-        <tr><td width="50%" align="center"><button id="photoBtn0" dojoType1="dojox.mobile.Button" onclick="getPhoto(0);">Upload Photo</button></td><td width="50%" align="center"><button id="photoBtn1" dojoType1="dojox.mobile.Button" onclick="getPhoto(1);">Upload Photo</button></td></tr>
-        <tr><td align="center">Other Car</td><td align="center">License Plate</td></tr>
-        <tr>
-            <td height="150" valign="middle" align="center" style="background:blue;" onclick="takePhoto(2);"><img id="photo2" src="" style="width:90%;visibility:hidden;display:none;"/><span id="photo2-text">Click to take picture</span></td>
-            <td height="150" valign="middle" align="center" style="background:blue;" onclick="takePhoto(3);"><img id="photo3" src="" style="width:90%;visibility:hidden;display:none;"/><span id="photo3-text">Click to take picture</span></td>
-        </tr>
-        <tr><td width="50%" align="center"><button id="photoBtn2" dojoType1="dojox.mobile.Button" onclick="getPhoto(2);">Upload Photo</button></td><td width="50%" align="center"><button id="photoBtn3" dojoType1="dojox.mobile.Button" onclick="getPhoto(3);">Upload Photo</button></td></tr>
-    </table>
-    </div>
-</div>
 </body>
 </html>
