@@ -368,7 +368,7 @@ function vehicleChanged() {
  */
 function uploadVehicle() {
     var request = new XMLHttpRequest();
-    if (userProfileId == null) {
+    if (vehicleId == null) {
         request.open("POST", "http://" + serverAddress + "/Impact2011Demo/rest/vehicle", true);
     } else {
         request.open("POST", "http://" + serverAddress + "/Impact2011Demo/rest/vehicle/"+vehicleId, true);
@@ -379,7 +379,7 @@ function uploadVehicle() {
         if(request.readyState == 4) {
             console.log("*"+request.status+"*");
             console.log("*"+request.responseText+"*");
-            if (userProfileId == null) {
+            if (vehicleId == null) {
                 var location = request.getResponseHeader("Location");
                 vehicleId = location.substring(location.lastIndexOf('/') + 1, location.length);
                 console.log(vehicleId);
