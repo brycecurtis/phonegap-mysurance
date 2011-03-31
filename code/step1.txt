@@ -1,0 +1,36 @@
+<!DOCTYPE html >
+<html lang="en">
+<head>
+
+<meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+<meta name="viewport" content="width=device-width; initial-scale=1.0; maximum-scale=1.0; user-scalable=no" />
+<meta name="format-detection" content="telephone=yes" />
+
+<title>Mysurance Demo</title>
+
+<script type="text/javascript" charset="utf-8" src="../../libs/phonegap.0.9.4.js"></script>
+<script type="text/javascript">
+
+/**
+ * Called when initial web page is loaded
+ */
+function onBodyLoad()
+{
+    console.log("onBodyLoad()");
+    
+    // Listen for PhoneGap framework to finish init
+    document.addEventListener("deviceready",onDeviceReady,false);
+}
+
+/**
+ * When this function is called, PhoneGap has been initialized and is ready to roll
+ */
+function onDeviceReady() {
+    console.log("onDeviceReady()");
+}
+</script>
+</head>
+<body onload="onBodyLoad();">
+This is our Mysurance demo app.
+</body>
+</html>

@@ -1,0 +1,124 @@
+<!DOCTYPE html >
+<html lang="en">
+<head>
+
+<meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+<meta name="viewport" content="width=device-width; initial-scale=1.0; maximum-scale=1.0; user-scalable=no" />
+<meta name="format-detection" content="telephone=yes" />
+
+<title>Mysurance Demo</title>
+
+<link rel="stylesheet" href="themes/android/mysurance.css" type="text/css" media="screen" title="no title" charset="utf-8">
+<link rel="stylesheet" href="../../libs/dojo/dojox/mobile/themes/android/android.css" type="text/css" media="screen" title="no title" charset="utf-8">
+
+<script type="text/javascript" charset="utf-8" src="../../libs/phonegap.0.9.4.js"></script>
+<script type="text/javascript" src="../../libs/dojo.js" djConfig="parseOnLoad:true"></script>
+<script type="text/javascript" src="storageDojo.js"></script>
+
+<script type="text/javascript">
+dojo.require("dojox.mobile.parser");
+dojo.require("dojox.mobile");
+
+/**
+ * Called when initial web page is loaded
+ */
+function onBodyLoad()
+{
+    console.log("onBodyLoad()");
+    
+    // Listen for PhoneGap framework to finish init
+    document.addEventListener("deviceready",onDeviceReady,false);
+}
+
+/**
+ * When this function is called, PhoneGap has been initialized and is ready to roll
+ */
+function onDeviceReady() {
+    console.log("onDeviceReady()");
+    // Open database for our app
+    getDatabase();
+}
+</script>
+</head>
+<body onload="onBodyLoad();">
+    
+<!-- HOME PAGE -->
+<div id="home" dojoType="dojox.mobile.View" selected="true">
+    <h1 style="height: 32px; vertical-align: middle" dojoType="dojox.mobile.Heading">
+        Mysurance
+        <img style="float: right" onClick="serverClicked();" src="images/settings.png"/>
+    </h1>
+    <img src="images/splash.jpg" style="position:absolute:top:0px;left:0px;" />
+    <table width="100%" style="cell-padding:5px;position:absolute;top:250px;">
+        <tr>
+            <td valign="middle" align="center" onClick="myInfoClicked();">
+                <img src="images/profile.png" width="100px"/>
+            </td>
+            <td valign="middle" align="center" onClick="accHelpClicked();">
+                <img src="images/toolbox.png" width="100px"/>
+            <td>
+        </tr>
+        <tr>
+            <td align="center">
+                <span style="color:black;">My Profile</span>
+            </td>
+            <td align="center">
+                <span style="color:black;">Accident Toolkit</span>
+            </td>
+        </tr>
+    </table>
+</div>
+<script type="text/javascript">
+
+/**
+ * Display profile panel
+ */
+function myInfoClicked() {
+    loadProfile(true);
+    dijit.byId("home").performTransition("myInfo", 1, 'slide');
+}
+
+/**
+ * Display accident toolkit panel
+ */
+function accHelpClicked() {
+    dijit.byId("home").performTransition("accHelp", 1, 'slide');
+}
+
+/**
+ * Display settings panel
+ */
+function serverClicked() {
+    dijit.byId("home").performTransition("appSettings", 1, 'slide');
+    
+    // Set the input with the server address from local storage
+    document.getElementById("serverAddr").value = serverAddress;
+}
+</script>
+
+<!-- APPLICATION SETTINGS PAGE -->
+<div dojoType="dojox.mobile.View" id="appSettings">
+    <h1 dojoType="dojox.mobile.Heading" back="Home" moveTo="home">Settings</h1>
+    <ul dojoType="dojox.mobile.RoundRectList">
+        <li dojoType="dojox.mobile.ListItem">
+            <label class="itemText" for="serverAddr" >Server:</label>
+            <input class="itemInput" id="serverAddr" type="text" onChange="serverAddressChanged(this);"/>
+        </li>
+    </ul>
+</div>
+<script type="text/javascript">
+
+// Global variable
+var serverAddress = localStorage.getItem("serverAddress");
+
+/**
+ * The server address has been changed
+ */
+function serverAddressChanged(el) {
+    serverAddress = el.value;
+    localStorage.setItem("serverAddress", serverAddress);
+}
+</script>
+
+</body>
+</html>
