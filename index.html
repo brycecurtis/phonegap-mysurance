@@ -35,15 +35,7 @@
 
   <div id="container">
 
-    <div class="download">
-      <a href="http://github.com/brycecurtis/phonegap-mysurance/zipball/master">
-        <img border="0" width="90" src="http://github.com/images/modules/download/zip.png"></a>
-      <a href="http://github.com/brycecurtis/phonegap-mysurance/tarball/master">
-        <img border="0" width="90" src="http://github.com/images/modules/download/tar.png"></a>
-    </div>
-
-    <h1><a href="http://github.com/brycecurtis/phonegap-mysurance">phonegap-mysurance</a>
-      <span class="small">by <a href="http://github.com/brycecurtis">brycecurtis</a></span></h1>
+    <h1><a href="http://github.com/brycecurtis/phonegap-mysurance">phonegap-mysurance</a></h1>
 
     <div class="description">
       This is a sample auto insurance PhoneGap application.
@@ -51,78 +43,30 @@
 
     <h2>Authors</h2>
 <p>Bryce Curtis (http://github.com/brycecurtis)
-<br/>macdonst (http://github.com/macdonst)
+<br/>Simon MacDonald (http://github.com/macdonst)
 <br/>
-<br/>      </p>
-<h2>Contact</h2>
-<p>Bryce Curtis (http://github.com/brycecurtis)
 <br/>      </p>
 
     <h2>Impact Demo</h2>
-    <p>
-    	<h3>Preamble</h3>
     	<p>The Impact Demo project is setup so that there is a natural progression of functionality being added as students move from step 1 to step 9.
-    	The user will modify the src/com/ibm/mysurance/Mysurance.java file to point to a new HTML file that corresponds to the next step in the project.
     	</p>
-    	<h3>Step 1</h3>
+    	<p>Click on the following links to display the HTML content for each of the steps in the lab.  You can copy  only the content that has changed from step to step, or copy and paste the entire contents into your HTML file.
+    	</p>
     	<ul>
     	   <li><a href="code/step1.txt">step1.html</a></li>
+    	   <li><a href="code/step2.txt">step2.html</a></li>
+    	   <li><a href="code/step3.txt">step3.html</a></li>
+    	   <li><a href="code/step4.txt">step4.html</a></li>
+    	   <li><a href="code/step5.txt">step5.html</a></li>
+    	   <li><a href="code/step6.txt">step6.html</a></li>
+    	   <li><a href="code/step7.txt">step7.html</a></li>
+    	   <li><a href="code/step8.txt">step8.html</a></li>
+    	   <li><a href="code/step9.txt">step9.html</a></li>
     	</ul>
-    	<p>In the first step the student will run the project from Eclipse so they can get used to launching the Android emulator.  The "step1.html"
-    	file is very simple. It includes a referece to the phonegap.0.9.4.js file but it is worth noting that PhoneGap is not ready to be used
-    	until the "deviceready" event is fired.  Take note of the "onBodyLoad()" method which in turn registers an evnet listenter for the
-    	"deviceready" event.  When the event is fired the "onDeviceReady()" method is run and PhoneGap is ready to be used. Students will be able
-    	to see that the event has been fired by looking at the console logs. The string "onDeviceReady()" will be printed to the console. Users
-    	will be able to view the console by running "adb logcat" from a Terminal.
-    	</p>
-    	<h3>Step 2</h3>
-    	<p>In step 2 we begin to introduce features from Mobile Dojo including views, headings and transistions.
-    	</p>
-    	<h3>Step 3</h3>
-    	<p>In step 3 we can transistion to our first sub-page. The settings page is only provided for people who want to debug the applicaiton
-    	on their own machines and will not be used in the class.
-    	</p>
-    	<h3>Step 4</h3>
-    	<p>In step 4 new functionality is introduced in the form of SQL Lite DB.  The users profile is read from and stored to a SQL Lite DB to keep it
-    	persistent across runs of the applicaiton.  Additionaly, students will be able to test the interaction with Web Sphere and a JAX-RS service.
-    	By using an XmlHttpRequest the application sends the users profile information to the server in order to be saved.  The first update will
-    	create a new user ID, the second update will modify the exiting information on the server.
-    	</p>
-    	<h3>Step 5</h3>
-    	<p>Step 5 is pretty much the same as step 4 except this time we are using vehicle information.
-    	</p>
-    	<h3>Step 6</h3>
-    	<p>In step 6 we introduce a new pane for collecting accident information.  The first two entries on the page, "Call the Police" and "Call the Tow
-    	Truck" will fire off a map application to give users an idea of where the closest Police or Tow Truck can be found.
-    	</p>
-    	<h3>Step 7</h3>
-    	<p>In step 7 the student can record the information of the other driver in the accident.
-    	</p>
-    	<h3>Step 8</h3>
-    	<p>In step 8 the student can record the location of where the accident took place. In order to make data entry easier the user can request the
-    	device use the current location.  In the first step the device retrieves the latitude and longitude from the built in GPS. It then users that
-    	data to query a web service for the street, city, state, etc. information.
-    	</p>
-    	<h3>Step 9</h3>
-    	<p>In step 9 the student can use the camera functionality to take a picture. Sadly you are stuck with the default Android picture. Then the
-    	student can upload the photo to the JAX-RS service.
-    	</p>
-    </p>
-
-    <h2>Download</h2>
-    <p>
-      You can download this project in either
-      <a href="http://github.com/brycecurtis/phonegap-mysurance/zipball/master">zip</a> or
-      <a href="http://github.com/brycecurtis/phonegap-mysurance/tarball/master">tar</a> formats.
-    </p>
-    <p>You can also clone the project with <a href="http://git-scm.com">Git</a>
-      by running:
-      <pre>$ git clone git://github.com/brycecurtis/phonegap-mysurance</pre>
-    </p>
-
-    <div class="footer">
-      get the source code on GitHub : <a href="http://github.com/brycecurtis/phonegap-mysurance">brycecurtis/phonegap-mysurance</a>
-    </div>
+    	<p>The demo uses a .war file for the server.  You can download this file using the following link and add it to your project.</p>
+    	<ul>
+    	   <li><a href="mysurance.war">mysurance.war</a></li>
+    	</ul>
 
   </div>
 </body>
