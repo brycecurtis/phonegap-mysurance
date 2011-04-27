@@ -1,0 +1,7 @@
+The Mysurance application is a sample auto insurance application written in 2/2010.  It was written for both the Android and iPhone.  The Android version is saved in the "Android" directory.
+
+The original Mysurance application was modified and segmented into steps 1-10 to be a lab tutorial session for the IBM Impact 2011 Conference.  The "Impact" directory contains this updated code.  
+
+Code was also added to save profile and vehicle to an IBM WebSphere application server via a JAX-RS REST service.  The accident photos are uploaded to WebSphere using the FileTransfer feature in PhoneGap.  
+
+There is a configuration screen in the application that shows the WebSphere server IP address.  If is not set, then any actions that send data to the server are ignored. 
