@@ -14,16 +14,10 @@
 <script type="text/javascript" charset="utf-8" src="../../libs/phonegap.0.9.4.js"></script>
 <script type="text/javascript" src="../../libs/dojo.js" djConfig="parseOnLoad:true"></script>
 <script type="text/javascript" src="storageDojo.js"></script>
-<script language="text/javascript" type="text/javascript">
-// Use the lightweight parser.
+
+<script type="text/javascript">
 dojo.require("dojox.mobile.parser");
 dojo.require("dojox.mobile");
-
-/**
- * Global Variables
- */
-var cur = null;
-var back = null;
 
 /**
  * Called when initial web page is loaded
@@ -34,44 +28,6 @@ function onBodyLoad()
     
     // Listen for PhoneGap framework to finish init
     document.addEventListener("deviceready",onDeviceReady,false);
-    
-    // Listen for back button
-    document.addEventListener("backKeyDown", backPressed);
-
-    // Hook transitions
-    try {
-        dijit.byId('home').onBeforeTransitionIn = enteringHome;
-        dijit.byId('home').onBeforeTransitionOut = leavingHome;
-        dijit.byId('appSettings').onBeforeTransitionIn = enteringServer;
-    } catch (e) {
-        console.log("  - error hooking transitions: "+e);
-    }
-}
-
-/**
- * Entering home screen
- */
-function enteringHome(moveTo, dir, transition, context, method) {
-    window.BackButton.reset();
-    cur = 'home';
-    back = null;
-}
-/**
- * Leaving home screen
- */
-function leavingHome(moveTo, dir, transition, context, method) {
-    window.BackButton.override();
-}
-
-/**
- * Back button was pressed. Show previous view.
- */
-function backPressed(e) {
-    console.log("backPressed");
-    if (back && cur) {
-        el = dijit.byId(cur);
-        el.performTransition(back, -1, 'slide');
-    }
 }
 
 /**
@@ -87,75 +43,82 @@ function onDeviceReady() {
 <body onload="onBodyLoad();">
     
 <!-- HOME PAGE -->
-<script type="text/javascript" charset="utf-8">
+<div id="home" dojoType="dojox.mobile.View" selected="true">
+    <h1 style="height: 32px; vertical-align: middle" dojoType="dojox.mobile.Heading">
+        Mysurance
+        <img style="float: right" onClick="serverClicked();" src="images/settings.png"/>
+    </h1>
+    <img src="images/splash.jpg" style="position:absolute:top:0px;left:0px;" />
+    <table width="100%" style="cell-padding:5px;position:absolute;top:250px;">
+        <tr>
+            <td valign="middle" align="center" onClick="myInfoClicked();">
+                <img src="images/profile.png" width="100px"/>
+            </td>
+            <td valign="middle" align="center" onClick="accHelpClicked();">
+                <img src="images/toolbox.png" width="100px"/>
+            <td>
+        </tr>
+        <tr>
+            <td align="center">
+                <span style="color:black;">My Profile</span>
+            </td>
+            <td align="center">
+                <span style="color:black;">Accident Toolkit</span>
+            </td>
+        </tr>
+    </table>
+</div>
+<script type="text/javascript">
 
 /**
  * Display profile panel
  */
 function myInfoClicked() {
     loadProfile(true);
-    var el = dijit.byId("home");
-    el.performTransition("myInfo", 1, 'slide');
+    dijit.byId("home").performTransition("myInfo", 1, 'slide');
 }
 
 /**
  * Display accident toolkit panel
  */
 function accHelpClicked() {
-    var el = dijit.byId("home");
-    el.performTransition("accHelp", 1, 'slide');
+    dijit.byId("home").performTransition("accHelp", 1, 'slide');
 }
 
+/**
+ * Display settings panel
+ */
 function serverClicked() {
-    var el = dijit.byId("home");
-    el.performTransition("appSettings", 1, 'slide');
+    dijit.byId("home").performTransition("appSettings", 1, 'slide');
+    
+    // Set the input with the server address from local storage
+    document.getElementById("serverAddr").value = serverAddress;
 }
 </script>
-<div id="home" dojoType="dojox.mobile.View" selected="true">
-    <h1 style="height: 32px; vertical-align: middle" dojoType="dojox.mobile.Heading">Mysurance<img style="float: right" onclick="serverClicked();" src="images/settings.png" /></h1>
-    <img src="images/splash.jpg" style="position:absolute:top:0px;left:0px;" />
-    <table width="100%" style="cell-padding:5px;position:absolute;top:250px;">
-        <tr>
-            <td valign="middle" align="center" onclick="myInfoClicked();"><img src="images/profile.png" width="100px"/></td>
-            <td valign="middle" align="center" onclick="accHelpClicked();"><img src="images/toolbox.png" width="100px"/><td>
-        </tr>
-        <tr><td align="center"><span style="color:black;">My Profile</span></td><td align="center"><span style="color:black;">Accident Toolkit</span></td></tr>
-    </table>
-</div>
 
 <!-- APPLICATION SETTINGS PAGE -->
-<script type="text/javascript" charset="utf-8">
-// Global variable
-var serverAddress = "192.168.78.128:9081";
-function updateServerAddress() {
-    serverAddress = document.getElementById("serverAddr").value
-}
-
-/**
- * Entering my info screen
- */
-function enteringServer(moveTo, dir, transition, context, method) {
-    cur = 'appSettings';
-    back = 'home';
-}
-
-/**
- * Leaving my info screen
- */
-function leavingServer(moveTo, dir, transition, context, method) {
-	var addr = document.getElementById("serverAddr").value
-    if (addr != null || addr != "undefined" || addr != null) {
-		serverAddress = addr;
-	}
-}   
-
-</script>
 <div dojoType="dojox.mobile.View" id="appSettings">
-    <h1 dojoType="dojox.mobile.Heading" back="Settings" moveTo="home">Settings</h1>
+    <h1 dojoType="dojox.mobile.Heading" back="Home" moveTo="home">Settings</h1>
     <ul dojoType="dojox.mobile.RoundRectList">
-        <li dojoType="dojox.mobile.ListItem"><label class="itemText" for="serverAddr" >Server:</label><input class="itemInput" id="serverAddr" type="text" onChange="updateServerAddress();"></li>
+        <li dojoType="dojox.mobile.ListItem">
+            <label class="itemText" for="serverAddr" >Server:</label>
+            <input class="itemInput" id="serverAddr" type="text" onChange="serverAddressChanged(this);"/>
+        </li>
     </ul>
 </div>
+<script type="text/javascript">
+
+// Global variable
+var serverAddress = localStorage.getItem("serverAddress");
+
+/**
+ * The server address has been changed
+ */
+function serverAddressChanged(el) {
+    serverAddress = el.value;
+    localStorage.setItem("serverAddress", serverAddress);
+}
+</script>
 
 </body>
 </html>

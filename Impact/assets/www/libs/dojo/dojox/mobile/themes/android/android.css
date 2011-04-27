@@ -108,7 +108,7 @@ body {
 /* dojox.mobile.Heading */
 .mblHeading {
 	position: relative;
-	height: 25px;
+	height: 32px;
 	margin: 0px;
 	padding: 0px 0px 0px 4px;
 	background-color: #8C8A8C;
@@ -116,10 +116,10 @@ body {
 	border-top: 1px solid #CDD5DF;
 	border-bottom: 1px solid #2D3642;
 	font-family: Helvetica;
-	font-size: 14px;
+	font-size: 18px;
 	color: white;
 	text-align: center;
-	line-height: 23px;
+	line-height: 30px;
 	text-shadow: rgba(0,0,0,0.6) 0px -1px 0px;
 	overflow: hidden;
 	white-space: nowrap;
@@ -132,7 +132,7 @@ body {
 	top: 5px;
 	left: 9px;
 	width: 19px;
-	height: 16px;
+	height: 22px;
 	border-width: 1px;
 	border-style: solid;
 	border-color: #3F3E3E;
@@ -144,14 +144,14 @@ body {
 	top: 0px;
 	left: 19px;
 	padding: 0px 10px 0px 3px;
-	height: 23px;
+	height: 30px;
 	border-width: 1px 1px 1px 0px;
 	border-style: inset;
 	border-color: #3F3E3E;
 	font-family: Helvetica;
-	font-size: 13px;
+	font-size: 15px;
 	color: white;
-	line-height: 23px;
+	line-height: 30px;
 	cursor: pointer;
 	-webkit-border-radius: 5px;
 	-moz-border-radius: 5px;
@@ -167,7 +167,7 @@ body {
 	top: 0px;
 	left: 19px;
 	width: 4px;
-	height: 23px;
+	height: 30px;
 	border-width: 1px 0px 1px 0px;
 	border-style: inset;
 	border-color: #3F3E3E;

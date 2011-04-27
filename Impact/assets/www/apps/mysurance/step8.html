@@ -14,16 +14,10 @@
 <script type="text/javascript" charset="utf-8" src="../../libs/phonegap.0.9.4.js"></script>
 <script type="text/javascript" src="../../libs/dojo.js" djConfig="parseOnLoad:true"></script>
 <script type="text/javascript" src="storageDojo.js"></script>
-<script language="text/javascript" type="text/javascript">
-// Use the lightweight parser.
+
+<script type="text/javascript">
 dojo.require("dojox.mobile.parser");
 dojo.require("dojox.mobile");
-
-/**
- * Global Variables
- */
-var cur = null;
-var back = null;
 
 /**
  * Called when initial web page is loaded
@@ -34,53 +28,6 @@ function onBodyLoad()
     
     // Listen for PhoneGap framework to finish init
     document.addEventListener("deviceready",onDeviceReady,false);
-    
-    // Listen for back button
-    document.addEventListener("backKeyDown", backPressed);
-
-    // Hook transitions
-    try {
-        dijit.byId('home').onBeforeTransitionIn = enteringHome;
-        dijit.byId('home').onBeforeTransitionOut = leavingHome;
-        dijit.byId('appSettings').onBeforeTransitionIn = enteringServer;
-        dijit.byId('myInfo').onBeforeTransitionIn = enteringMyInfo;
-        dijit.byId('myInfo').onBeforeTransitionOut = leavingMyInfo;
-        dijit.byId('addVehicle').onBeforeTransitionIn = enteringAddVehicle;
-        dijit.byId('addVehicle').onBeforeTransitionOut = leavingAddVehicle;
-        dijit.byId('accHelp').onBeforeTransitionIn = enteringAccHelp;
-        dijit.byId('accInfo').onBeforeTransitionIn = enteringAccInfo;
-        dijit.byId('accInfo').onBeforeTransitionOut = leavingAccInfo;
-        dijit.byId('accLocation').onBeforeTransitionIn = enteringAccLocation;
-        dijit.byId('accLocation').onBeforeTransitionOut = leavingAccLocation;
-    } catch (e) {
-        console.log("  - error hooking transitions: "+e);
-    }
-}
-
-/**
- * Entering home screen
- */
-function enteringHome(moveTo, dir, transition, context, method) {
-    window.BackButton.reset();
-    cur = 'home';
-    back = null;
-}
-/**
- * Leaving home screen
- */
-function leavingHome(moveTo, dir, transition, context, method) {
-    window.BackButton.override();
-}
-
-/**
- * Back button was pressed. Show previous view.
- */
-function backPressed(e) {
-    console.log("backPressed");
-    if (back && cur) {
-        el = dijit.byId(cur);
-        el.performTransition(back, -1, 'slide');
-    }
 }
 
 /**
@@ -96,96 +43,195 @@ function onDeviceReady() {
 <body onload="onBodyLoad();">
     
 <!-- HOME PAGE -->
-<script type="text/javascript" charset="utf-8">
+<div id="home" dojoType="dojox.mobile.View" selected="true">
+    <h1 style="height: 32px; vertical-align: middle" dojoType="dojox.mobile.Heading">
+        Mysurance
+        <img style="float: right" onClick="serverClicked();" src="images/settings.png"/>
+    </h1>
+    <img src="images/splash.jpg" style="position:absolute:top:0px;left:0px;" />
+    <table width="100%" style="cell-padding:5px;position:absolute;top:250px;">
+        <tr>
+            <td valign="middle" align="center" onClick="myInfoClicked();">
+                <img src="images/profile.png" width="100px"/>
+            </td>
+            <td valign="middle" align="center" onClick="accHelpClicked();">
+                <img src="images/toolbox.png" width="100px"/>
+            <td>
+        </tr>
+        <tr>
+            <td align="center">
+                <span style="color:black;">My Profile</span>
+            </td>
+            <td align="center">
+                <span style="color:black;">Accident Toolkit</span>
+            </td>
+        </tr>
+    </table>
+</div>
+<script type="text/javascript">
 
 /**
  * Display profile panel
  */
 function myInfoClicked() {
     loadProfile(true);
-    var el = dijit.byId("home");
-    el.performTransition("myInfo", 1, 'slide');
+    dijit.byId("home").performTransition("myInfo", 1, 'slide');
 }
 
 /**
  * Display accident toolkit panel
  */
 function accHelpClicked() {
-    var el = dijit.byId("home");
-    el.performTransition("accHelp", 1, 'slide');
+    dijit.byId("home").performTransition("accHelp", 1, 'slide');
 }
 
+/**
+ * Display settings panel
+ */
 function serverClicked() {
-    var el = dijit.byId("home");
-    el.performTransition("appSettings", 1, 'slide');
+    dijit.byId("home").performTransition("appSettings", 1, 'slide');
+    
+    // Set the input with the server address from local storage
+    document.getElementById("serverAddr").value = serverAddress;
 }
 </script>
-<div id="home" dojoType="dojox.mobile.View" selected="true">
-    <h1 style="height: 32px; vertical-align: middle" dojoType="dojox.mobile.Heading">Mysurance<img style="float: right" onclick="serverClicked();" src="images/settings.png" /></h1>
-    <img src="images/splash.jpg" style="position:absolute:top:0px;left:0px;" />
-    <table width="100%" style="cell-padding:5px;position:absolute;top:250px;">
-        <tr>
-            <td valign="middle" align="center" onclick="myInfoClicked();"><img src="images/profile.png" width="100px"/></td>
-            <td valign="middle" align="center" onclick="accHelpClicked();"><img src="images/toolbox.png" width="100px"/><td>
-        </tr>
-        <tr><td align="center"><span style="color:black;">My Profile</span></td><td align="center"><span style="color:black;">Accident Toolkit</span></td></tr>
-    </table>
-</div>
 
 <!-- APPLICATION SETTINGS PAGE -->
-<script type="text/javascript" charset="utf-8">
-// Global variable
-var serverAddress = "192.168.78.128:9081";
-function updateServerAddress() {
-    serverAddress = document.getElementById("serverAddr").value
-}
-
-/**
- * Entering my info screen
- */
-function enteringServer(moveTo, dir, transition, context, method) {
-    cur = 'appSettings';
-    back = 'home';
-}
-
-/**
- * Leaving my info screen
- */
-function leavingServer(moveTo, dir, transition, context, method) {
-	var addr = document.getElementById("serverAddr").value
-    if (addr != null || addr != "undefined" || addr != null) {
-		serverAddress = addr;
-	}
-}   
-
-</script>
 <div dojoType="dojox.mobile.View" id="appSettings">
-    <h1 dojoType="dojox.mobile.Heading" back="Settings" moveTo="home">Settings</h1>
+    <h1 dojoType="dojox.mobile.Heading" back="Home" moveTo="home">Settings</h1>
     <ul dojoType="dojox.mobile.RoundRectList">
-        <li dojoType="dojox.mobile.ListItem"><label class="itemText" for="serverAddr" >Server:</label><input class="itemInput" id="serverAddr" type="text" onChange="updateServerAddress();"></li>
+        <li dojoType="dojox.mobile.ListItem">
+            <label class="itemText" for="serverAddr" >Server:</label>
+            <input class="itemInput" id="serverAddr" type="text" onChange="serverAddressChanged(this);"/>
+        </li>
     </ul>
 </div>
+<script type="text/javascript">
+
+// Global variable
+var serverAddress = localStorage.getItem("serverAddress");
+
+/**
+ * The server address has been changed
+ */
+function serverAddressChanged(el) {
+    serverAddress = el.value;
+    localStorage.setItem("serverAddress", serverAddress);
+}
+</script>
 
 <!-- EDIT PROFILE PAGE -->
-<script type="text/javascript" charset="utf-8">
-// Global Variable
-var profileChanged = false;         // Profile has changed  
+<div id="myInfo" dojoType="dojox.mobile.View">
+    <h1 dojoType="dojox.mobile.Heading" back="Home" moveTo="home" onClick="storeProfile(true);">My Info</h1>
+    <ul dojoType="dojox.mobile.RoundRectList">
+        <li dojoType="dojox.mobile.ListItem">
+            <label class="itemText" for="fName" >First Name:</label>
+            <input class="itemInput" id="fName" type="text" onChange="userProfileChanged();"/>
+        </li>
+        <li dojoType="dojox.mobile.ListItem">
+            <label class="itemText" for="lName" >Last Name:</label>
+            <input class="itemInput" id="lName" type="text" onChange="userProfileChanged();" />
+        </li>
+        <li dojoType="dojox.mobile.ListItem">
+            <label class="itemText" for="street" >Street:</label>
+            <input class="itemInput" id="street" type="text" onChange="userProfileChanged();" />
+        </li>
+        <li dojoType="dojox.mobile.ListItem">
+            <label class="itemText" for="city" >City:</label>
+            <input class="itemInput" id="city" type="text" onChange="userProfileChanged();" />
+        </li>
+        <li dojoType="dojox.mobile.ListItem">
+            <label class="itemText" for="state" >State:</label>
+            <select class="itemInput" id="state" type="text" onChange="userProfileChanged();">
+                <option value="AL">Alabama</option>
+                <option value="AK">Alaska</option>
+                <option value="AZ">Arizona</option>
+                <option value="AR">Arkansas</option>
+                <option value="CA">California</option>
+                <option value="CO">Colorado</option>
+                <option value="CT">Connecticut</option>
+                <option value="DE">Delaware</option>
+                <option value="DC">District of Columbia</option>
+                <option value="FL">Florida</option>
+                <option value="GA">Georgia</option>
+                <option value="GU">Guam</option>
+                <option value="HI">Hawaii</option>
+                <option value="ID">Idaho</option>
+                <option value="IL">Illinois</option>
+                <option value="IN">Indiana</option>
+                <option value="IA">Iowa</option>
+                <option value="KS">Kansas</option>
+                <option value="KY">Kentucky</option>
+                <option value="LA">Louisiana</option>
+                <option value="ME">Maine</option>
+                <option value="MH">Marshall Islands</option>
+                <option value="MD">Maryland</option>
+                <option value="MA">Massachusetts</option>
+                <option value="MI">Michigan</option>
+                <option value="MN">Minnesota</option>
+                <option value="MS">Mississippi</option>
+                <option value="MO">Missouri</option>
+                <option value="MT">Montana</option>
+                <option value="NE">Nebraska</option>
+                <option value="NV">Nevada</option>
+                <option value="NH">New Hampshire</option>
+                <option value="NJ">New Jersey</option>
+                <option value="NM">New Mexico</option>
+                <option value="NY">New York</option>
+                <option value="NC">North Carolina</option>
+                <option value="ND">North Dakota</option>
+                <option value="OH">Ohio</option>
+                <option value="OK">Oklahoma</option>
+                <option value="OR">Oregon</option>
+                <option value="PA">Pennsylvania</option>
+                <option value="RI">Rhode Island</option>
+                <option value="SC">South Carolina</option>
+                <option value="SD">South Dakota</option>
+                <option value="TN">Tennessee</option>
+                <option value="TX">Texas</option>
+                <option value="UT">Utah</option>
+                <option value="VT">Vermont</option>
+                <option value="VA">Virginia</option>
+                <option value="WA">Washington</option>
+                <option value="WV">West Virginia</option>
+                <option value="WI">Wisconsin</option>
+                <option value="WY">Wyoming</option>
+            </select>
+        </li>
+        <li dojoType="dojox.mobile.ListItem">
+            <label class="itemText" for="zip" >Zip:</label>
+            <input class="itemInput" id="zip" type="number" size="5" onChange="userProfileChanged();" />
+        </li>
+        <li dojoType="dojox.mobile.ListItem">
+            <label class="itemText" for="phone" >Phone:</label>
+            <input class="itemInput" id="phone" type="tel" onChange="userProfileChanged();" />
+        </li>
+        <li dojoType="dojox.mobile.ListItem">
+            <label class="itemText" for="email" >Email:</label>
+            <input class="itemInput" id="email" type="email" onChange="userProfileChanged();" />
+        </li>
+        <li dojoType="dojox.mobile.ListItem">
+            <label class="itemText" for="licenseNo" >License #:</label>
+            <input class="itemInput" id="licenseNo" type="number" onChange="userProfileChanged();" />
+        </li>
+        <li dojoType="dojox.mobile.ListItem">
+            <button id="profileBtn" onclick="uploadProfile();">Upload Profile</button>
+        </li>
+    </ul>
+    <input type="hidden" id="profileId" />
+    <input type="hidden" id="vCount" />
+    <h2 dojoType="dojox.mobile.RoundRectCategory">My Vehicles</h2>
+    <ul dojoType="dojox.mobile.RoundRectList" id="vList">
+        <li dojoType="dojox.mobile.ListItem" id="addItem" moveTo="addVehicle" transition="slide" onclick="addVehicleClicked();">
+            Add Vehicle
+        </li>
+    </ul>
+</div>
+<script type="text/javascript">
+
+//Global Variable
+var profileChanged = false;  
 var userProfileId = null;
-
-/**
- * Entering my info screen
- */
-function enteringMyInfo(moveTo, dir, transition, context, method) {
-    cur = 'myInfo';
-    back = 'home';
-}
-
-/**
- * Leaving my info screen
- */
-function leavingMyInfo(moveTo, dir, transition, context, method) {
-    storeProfile(true);
-}   
 
 /**
  * Set flag indicating that profile has been modified
@@ -201,47 +247,38 @@ function userProfileChanged() {
 function addVehicleClicked() {
     console.log("addVehicleClicked()");
 
+    // Save changes to profile 
+    storeProfile(true);
+
+    // Set the ownerId of the form to the profileId 
+    document.getElementById("ownerId").value = document.getElementById("profileId").value;
+}
+
+/**
+ * The View Vehicle menu item was clicked
+ *
+ * @param el        The el of the vehicle item
+ */
+function viewVehicleClicked(el) {
+    console.log("viewVehicleClicked("+el+")");
+    var id = el.getAttribute("vid");
+    console.log(" - id="+id);
+
     // Save changes to profile
     storeProfile(true);
 
     // Set the ownerId of the form to the profileId
     document.getElementById("ownerId").value = document.getElementById("profileId").value;
+    document.getElementById("vehicleId").value = id;
+
+    // Load vehicle profile
+    loadVehicle(id);
 }
 
 /**
- * Upload profile
- */
-function uploadProfile() {
-    var request = new XMLHttpRequest();
-	if (userProfileId == null) {
-		request.open("POST", "http://" + serverAddress + "/Impact2011Demo/rest/userProfile", true);
-	} else {
-        request.open("POST", "http://" + serverAddress + "/Impact2011Demo/rest/userProfile/"+userProfileId, true);
-	}
-	request.setRequestHeader("Content-type", "application/json");
-    request.onreadystatechange = function() {//Call a function when the state changes.
-        console.log("state = " + request.readyState);
-        if(request.readyState == 4) {
-			console.log("*"+request.status+"*");
-            console.log("*"+request.responseText+"*");
-			if (userProfileId == null) {
-				var location = request.getResponseHeader("Location");
-				userProfileId = location.substring(location.lastIndexOf('/') + 1, location.length);
-				console.log(userProfileId);
-			}
-        }
-    }
-	sendValue = stringifyProfile();
-	console.log("Profile: " + sendValue);
-    console.log("sending user profile");
-	request.send(sendValue);
-}
-
-/**
- * Create profile JSON
+ * Return profile as JSON string
  */
 function stringifyProfile() {
-	// Build the profile into a JSON message
     var profile = '{';
     if (userProfileId != null) {
           profile = profile + '"uniqueId": ' + '"' + userProfileId + '", ';
@@ -255,158 +292,105 @@ function stringifyProfile() {
     profile = profile + '"phone": ' + '"' + document.getElementById("phone").value + '", ';
     profile = profile + '"email": ' + '"' + document.getElementById("email").value + '", ';
     profile = profile + '"licenseNo": ' + '"' + document.getElementById("licenseNo").value + '"}';
-	return profile;
+    return profile;
+}
+
+/**
+ * Upload profile to server
+ */
+function uploadProfile() {
+    console.log("uploadProfile()");
+    if (!serverAddress) {
+        return;
+    }
+    // Make an Ajax request to profile service 
+    var request = new XMLHttpRequest();
+    if (userProfileId == null) {
+        request.open("PUT", "http://" + serverAddress + "/Impact2011Demo/rest/userProfile", true);
+    } else {
+        request.open("POST", "http://" + serverAddress + "/Impact2011Demo/rest/userProfile/"+userProfileId, true);
+    }
+    request.setRequestHeader("Content-type", "application/json");
+
+    // Call a function when the state changes
+    request.onreadystatechange = function() {
+        console.log("uploadProfile: state = " + request.readyState);
+        if(request.readyState == 4) {
+            console.log("uploadProfile: status = "+request.status);
+            console.log("uploadProfile: response = "+request.responseText);
+            if ((userProfileId == null) && request.responseText) {
+                var location = request.getResponseHeader("Location");
+                userProfileId = location.substring(location.lastIndexOf('/') + 1, location.length);
+                console.log(userProfileId);
+            }
+        }
+    }
+    // Send JSON object to server 
+    sendValue = stringifyProfile();
+    console.log("Profile: " + sendValue);
+    console.log("Sending user profile");
+    request.send(sendValue);
 }
 </script>
-<div id="myInfo" dojoType="dojox.mobile.View">
-    <h1 dojoType="dojox.mobile.Heading" back="Home" moveTo="home">My Info</h1>
-    <ul dojoType="dojox.mobile.RoundRectList">
-        <li dojoType="dojox.mobile.ListItem"><label class="itemText" for="fName" >First Name:</label><input class="itemInput" id="fName" type="text" onChange="userProfileChanged();"/></li>
-        <li dojoType="dojox.mobile.ListItem"><label class="itemText" for="lName" >Last Name:</label><input class="itemInput" id="lName" type="text" onChange="userProfileChanged();"></li>
-        <li dojoType="dojox.mobile.ListItem"><label class="itemText" for="street" >Street:</label><input class="itemInput" id="street" type="text" onChange="userProfileChanged();"></li>
-        <li dojoType="dojox.mobile.ListItem"><label class="itemText" for="city" >City:</label><input class="itemInput" id="city" type="text" onChange="userProfileChanged();"></li>
-        <li dojoType="dojox.mobile.ListItem"><label class="itemText" for="state" >State:</label>
-            <select class="itemInput" id="state" type="text" onChange="userProfileChanged();">
-            <option value="AL">Alabama</option>
-            <option value="AK">Alaska</option>
-            <option value="AZ">Arizona</option>
-            <option value="AR">Arkansas</option>
-            <option value="CA">California</option>
-            <option value="CO">Colorado</option>
-            <option value="CT">Connecticut</option>
-            <option value="DE">Delaware</option>
-            <option value="DC">District of Columbia</option>
-            <option value="FL">Florida</option>
-            <option value="GA">Georgia</option>
-            <option value="GU">Guam</option>
-            <option value="HI">Hawaii</option>
-            <option value="ID">Idaho</option>
-            <option value="IL">Illinois</option>
-            <option value="IN">Indiana</option>
-            <option value="IA">Iowa</option>
-            <option value="KS">Kansas</option>
-            <option value="KY">Kentucky</option>
-            <option value="LA">Louisiana</option>
-            <option value="ME">Maine</option>
-            <option value="MH">Marshall Islands</option>
-            <option value="MD">Maryland</option>
-            <option value="MA">Massachusetts</option>
-            <option value="MI">Michigan</option>
-            <option value="MN">Minnesota</option>
-            <option value="MS">Mississippi</option>
-            <option value="MO">Missouri</option>
-            <option value="MT">Montana</option>
-            <option value="NE">Nebraska</option>
-            <option value="NV">Nevada</option>
-            <option value="NH">New Hampshire</option>
-            <option value="NJ">New Jersey</option>
-            <option value="NM">New Mexico</option>
-            <option value="NY">New York</option>
-            <option value="NC">North Carolina</option>
-            <option value="ND">North Dakota</option>
-            <option value="OH">Ohio</option>
-            <option value="OK">Oklahoma</option>
-            <option value="OR">Oregon</option>
-            <option value="PA">Pennsylvania</option>
-            <option value="RI">Rhode Island</option>
-            <option value="SC">South Carolina</option>
-            <option value="SD">South Dakota</option>
-            <option value="TN">Tennessee</option>
-            <option value="TX">Texas</option>
-            <option value="UT">Utah</option>
-            <option value="VT">Vermont</option>
-            <option value="VA">Virginia</option>
-            <option value="WA">Washington</option>
-            <option value="WV">West Virginia</option>
-            <option value="WI">Wisconsin</option>
-            <option value="WY">Wyoming</option>
-        </select>
-        </li>
-        <li dojoType="dojox.mobile.ListItem"><label class="itemText" for="zip" >Zip:</label><input class="itemInput" id="zip" type="number" size="5" onChange="userProfileChanged();"></li>
-        <li dojoType="dojox.mobile.ListItem"><label class="itemText" for="phone" >Phone:</label><input class="itemInput" id="phone" type="tel" onChange="userProfileChanged();"></li>
-        <li dojoType="dojox.mobile.ListItem"><label class="itemText" for="email" >Email:</label><input class="itemInput" id="email" type="email" onChange="userProfileChanged();"></li>
-        <li dojoType="dojox.mobile.ListItem"><label class="itemText" for="licenseNo" >License #:</label><input class="itemInput" id="licenseNo" type="number" onChange="userProfileChanged();"></li>
-        <li dojoType="dojox.mobile.ListItem"><button id="profileBtn" dojoType1="dojox.mobile.Button" onclick="uploadProfile();">Upload Profile</button></li>
-    </ul>
-    <input type="hidden" id="profileId" />
-    <input type="hidden" id="vCount" />
-    <h2 dojoType="dojox.mobile.RoundRectCategory">My Vehicles</h2>
-    <ul dojoType="dojox.mobile.RoundRectList" id="vList">
-        <li dojoType="dojox.mobile.ListItem" id="addItem" moveTo="addVehicle" transition="slide" onclick="addVehicleClicked();">
-            Add Vehicle
-        </li>
-    </ul>
-</div>
 
 <!-- ADD VEHICLE PAGE -->
-<script type="text/javascript" charset="utf-8">
-// Global varialbe
+<div dojoType="dojox.mobile.View" id="addVehicle">
+    <h1 dojoType="dojox.mobile.Heading" back="My Info" moveTo="myInfo" onClick="storeVehicle();loadProfile(true);clearVehicleForm();">Add Vehicle</h1>
+    <h2 dojoType="dojox.mobile.RoundRectCategory">Add Vehicle</h2>
+    <ul dojoType="dojox.mobile.RoundRectList" >
+        <li dojoType="dojox.mobile.ListItem">
+            <label class="itemText" for="vName" >Nickname:</label>
+            <input class="itemInput" id="vName" type="text" onChange="vehicleDataChanged();"/>
+        </li>
+        <li dojoType="dojox.mobile.ListItem">
+            <label class="itemText" for="vMake" >Make:</label>
+            <input class="itemInput" id="vMake" type="text" onChange="vehicleDataChanged();"/>
+        </li>
+        <li dojoType="dojox.mobile.ListItem">
+            <label class="itemText" for="vModel" >Model:</label>
+            <input class="itemInput" id="vModel" type="text" onChange="vehicleDataChanged();"/>
+        </li>
+        <li dojoType="dojox.mobile.ListItem">
+            <label class="itemText" for="vYear" >Year:</label>
+            <input class="itemInput" id="vYear" type="number" onChange="vehicleDataChanged();"/>
+        </li>
+        <li dojoType="dojox.mobile.ListItem">
+            <label class="itemText" for="vPlate" >Plate:</label>
+            <input class="itemInput" id="vPlate" type="text" onChange="vehicleDataChanged();"/>
+        </li>
+        <li dojoType="dojox.mobile.ListItem">
+            <label class="itemText" for="vin" >VIN:</label>
+            <input class="itemInput" id="vin" type="number" onChange="vehicleDataChanged();"/>
+        </li>
+        <li dojoType="dojox.mobile.ListItem">
+            <button id="profileBtn" dojoType1="dojox.mobile.Button" onclick="uploadVehicle();">Upload Vehicle</button>
+        </li>
+    </ul>
+    <input type="hidden" id="vehicleId" /><input type="hidden" id="ownerId" />
+</div>
+<script type="text/javascript">
+
+// Global variable 
 var vehicleChanged = false;
 var vehicleId = null;
 
 /**
- * Entering add vehicle screen
- */
-function enteringAddVehicle(moveTo, dir, transition, context, method) {
-    cur = 'addVehicle';
-    back = 'myInfo';
-}
-
-/**
- * Leaving add vehicle screen
- */
-function leavingAddVehicle(moveTo, dir, transition, context, method) {
-    storeVehicle();
-    loadProfile(true);
-    clearVehicleForm();
-}
-
-/**
  * Set flag indicating that vehicle has been modified
  */
-function vehicleChanged() {
+function vehicleDataChanged() {
     console.log("vehicleChanged()");
     vehicleChanged = true;
 }
-/**
- * Upload profile
- */
-function uploadVehicle() {
-    var request = new XMLHttpRequest();
-    if (vehicleId == null) {
-        request.open("POST", "http://" + serverAddress + "/Impact2011Demo/rest/vehicle", true);
-    } else {
-        request.open("POST", "http://" + serverAddress + "/Impact2011Demo/rest/vehicle/"+vehicleId, true);
-    }
-    request.setRequestHeader("Content-type", "application/json");
-    request.onreadystatechange = function() {//Call a function when the state changes.
-        console.log("state = " + request.readyState);
-        if(request.readyState == 4) {
-            console.log("*"+request.status+"*");
-            console.log("*"+request.responseText+"*");
-            if (vehicleId == null) {
-                var location = request.getResponseHeader("Location");
-                vehicleId = location.substring(location.lastIndexOf('/') + 1, location.length);
-                console.log(vehicleId);
-            }
-        }
-    }
-    sendValue = stringifyVehicle();
-    console.log("Vehicle: " + sendValue);
-    console.log("sending user profile");
-    request.send(sendValue);
-}
 
 /**
- * Create vehicle JSON
+ * Return vehicle as JSON string
  */
 function stringifyVehicle() {
-    // Build the profile into a JSON message
     var profile = '{';
-	if (vehicleId != null) {
-		  profile = profile + '"uniqueId": ' + '"' + vehicleId + '", ';
-	}
-	profile = profile + '"vName": ' + '"' + document.getElementById("vName").value + '", ';
+    if (vehicleId != null) {
+          profile = profile + '"uniqueId": ' + '"' + vehicleId + '", ';
+    }
+    profile = profile + '"vName": ' + '"' + document.getElementById("vName").value + '", ';
     profile = profile + '"vMake": ' + '"' + document.getElementById("vMake").value + '", ';
     profile = profile + '"vModel": ' + '"' + document.getElementById("vModel").value + '", ';
     profile = profile + '"vYear": ' + '"' + document.getElementById("vYear").value + '", ';
@@ -414,31 +398,58 @@ function stringifyVehicle() {
     profile = profile + '"vNumber": ' + '"' + document.getElementById("vin").value + '"}';
     return profile;
 }
+
+/**
+ * Upload vehicle to server
+ */
+function uploadVehicle() {
+    console.log("uploadVehicle()");
+    if (!serverAddress) {
+        return;
+    }
+    // Make an Ajax request to vehicle service 
+    var request = new XMLHttpRequest();
+    if (vehicleId == null) {
+        request.open("PUT", "http://" + serverAddress + "/Impact2011Demo/rest/vehicle", true);
+    } else {
+        request.open("POST", "http://" + serverAddress + "/Impact2011Demo/rest/vehicle/"+vehicleId, true);
+    }
+    request.setRequestHeader("Content-type", "application/json");
+
+    // Call a function when the state changes 
+    request.onreadystatechange = function() {//Call a function when the state changes.
+        console.log("uploadVehicle: state = " + request.readyState);
+        if(request.readyState == 4) {
+            console.log("uploadVehicle: status = "+request.status);
+            console.log("uploadVehicle: response = "+request.responseText);
+            if (vehicleId == null) {
+                var location = request.getResponseHeader("Location");
+                vehicleId = location.substring(location.lastIndexOf('/') + 1, location.length);
+                console.log(vehicleId);
+            }
+        }
+    }
+    // Send JSON object to server 
+    sendValue = stringifyVehicle();
+    console.log("Vehicle: " + sendValue);
+    console.log("Sending vehicle");
+    request.send(sendValue);
+}
 </script>
-<div dojoType="dojox.mobile.View" id="addVehicle">
-    <h1 dojoType="dojox.mobile.Heading" back="My Info" moveTo="myInfo">Add Vehicle</h1>
-    <h2 dojoType="dojox.mobile.RoundRectCategory">Add Vehicle</h2>
-    <ul dojoType="dojox.mobile.RoundRectList" >
-        <li dojoType="dojox.mobile.ListItem"><label class="itemText" for="vName" >Nickname:</label><input class="itemInput" id="vName" type="text" onChange="vehicleChanged();" /></li>
-        <li dojoType="dojox.mobile.ListItem"><label class="itemText" for="vMake" >Make:</label><input class="itemInput" id="vMake" type="text" onChange="vehicleChanged();" /></li>
-        <li dojoType="dojox.mobile.ListItem"><label class="itemText" for="vModel" >Model:</label><input class="itemInput" id="vModel" type="text" onChange="vehicleChanged();" /></li>
-        <li dojoType="dojox.mobile.ListItem"><label class="itemText" for="vYear" >Year:</label><input class="itemInput" id="vYear" type="number" onChange="vehicleChanged();" /></li>
-        <li dojoType="dojox.mobile.ListItem"><label class="itemText" for="vPlate" >Plate:</label><input class="itemInput" id="vPlate" type="text" onChange="vehicleChanged();" /></li>
-        <li dojoType="dojox.mobile.ListItem"><label class="itemText" for="vin" >VIN:</label><input class="itemInput" id="vin" type="number" onChange="vehicleChanged();" /></li>
-        <li dojoType="dojox.mobile.ListItem"><button id="profileBtn" dojoType1="dojox.mobile.Button" onclick="uploadVehicle();">Upload Vehicle</button></li>
-    </ul>
-    <input type="hidden" id="vehicleId" /><input type="hidden" id="ownerId" />
-</div>
 
 <!-- ACCIDENT TOOLKIT PAGE -->
-<script type="text/javascript" charset="utf-8">
-/**
- * Entering accident toolkit screen
- */
-function enteringAccHelp(moveTo, dir, transition, context, method) {
-    cur = 'accHelp';
-    back = 'home';
-}
+<div dojoType="dojox.mobile.View" id="accHelp">
+    <h1 dojoType="dojox.mobile.Heading" back="Home" moveTo="home">Accident</h1>
+    <div class="text">If you are in an accident, you should first move to a safe location.  Below are some additional actions you can take:</div>
+    <ul dojoType="dojox.mobile.RoundRectList">
+        <li dojoType="dojox.mobile.ListItem" id="policeListItem" onclick='mapQuery("police");'>Call the Police</li>
+        <li dojoType="dojox.mobile.ListItem" onclick='mapQuery("towing");'>Call for a Tow Truck</li>
+        <li dojoType="dojox.mobile.ListItem" moveTo="accInfo" transition="slide" onClick="loadAccidentInfo();">Exchange Driver Info</li>
+        <li dojoType="dojox.mobile.ListItem" moveTo="accLocation" transition="slide" onClick="loadLocation();">Record Accident Location</li>
+        <li dojoType="dojox.mobile.ListItem" moveTo="accPhotos" transition="slide" onClick="loadPhotos();">Take Photos of Accident</li>
+    </ul>
+</div>
+<script type="text/javascript">
 
 /**
  * Display locate query string
@@ -446,40 +457,72 @@ function enteringAccHelp(moveTo, dir, transition, context, method) {
 function mapQuery(queryString) {
     console.log("mapQuery()");
     window.location = "geo:0,0?q="+queryString;
+    //window.location = "geo:36.18,-115.13?q="+queryString;
 }
 </script>
-<div dojoType="dojox.mobile.View" id="accHelp">
-    <h1 dojoType="dojox.mobile.Heading" back="Home" moveTo="home">Accident</h1>
-    <div class="text">If you are in an accident, you should first move to a safe location.  Below are some additional actions you can take:</div>
-    <ul dojoType="dojox.mobile.RoundRectList">
-        <li dojoType="dojox.mobile.ListItem" id="policeListItem" onclick='mapQuery("police");'>Call the Police</li>
-        <li dojoType="dojox.mobile.ListItem" onclick='mapQuery("towing");'>Call for a Tow Truck</li>
-        <li dojoType="dojox.mobile.ListItem" moveTo="accInfo" transition="slide">Exchange Driver Info</li>
-        <li dojoType="dojox.mobile.ListItem" moveTo="accLocation" transition="slide">Record Accident Location</li>
-        <li dojoType="dojox.mobile.ListItem" moveTo="accPhotos" transition="slide">Take Photos of Accident</li>
-    </ul>
-</div>
 
 <!-- EXCHANGE DRIVER INFO PAGE -->
-<script type="text/javascript" charset="utf-8">
+<div dojoType="dojox.mobile.View" id="accInfo">
+    <h1 dojoType="dojox.mobile.Heading" back="Accident" moveTo="accHelp" onClick="storeAccidentInfo();">Driver</h1>
+    <h2 dojoType="dojox.mobile.RoundRectCategory">Other Driver Info</h2>
+    <ul dojoType="dojox.mobile.RoundRectList">
+        <li dojoType="dojox.mobile.ListItem">
+            <label class="itemText" for="fNameAcc" >First Name:</label>
+            <input class="itemInput" id="fNameAcc" type="text" onChange="accInfoChanged();"/>
+        </li>
+        <li dojoType="dojox.mobile.ListItem">
+            <label class="itemText" for="lNameAcc" >Last Name:</label>
+            <input class="itemInput" id="lNameAcc" type="text" onChange="accInfoChanged();">
+        </li>
+        <li dojoType="dojox.mobile.ListItem">
+            <label class="itemText" for="phoneAcc" >Phone:</label>
+            <input class="itemInput" id="phoneAcc" type="tel" onChange="accInfoChanged();">
+        </li>
+        <li dojoType="dojox.mobile.ListItem">
+            <label class="itemText" for="emailAcc" >Email:</label>
+            <input class="itemInput" id="emailAcc" type="email" onChange="accInfoChanged();">
+        </li>
+        <li dojoType="dojox.mobile.ListItem">
+            <label class="itemText" for="licenseNoAcc" >License #:</label>
+            <input class="itemInput" id="licenseNoAcc" type="number" onChange="accInfoChanged();">
+        </li>
+        <li dojoType="dojox.mobile.ListItem">
+            <label class="itemText" for="insurerAcc" >Insurer:</label>
+            <input class="itemInput" id="insurerAcc" type="number" onChange="accInfoChanged();">
+        </li>
+        <li dojoType="dojox.mobile.ListItem">
+            <label class="itemText" for="insurerNoAcc" >Phone:</label>
+            <input class="itemInput" id="insurerNoAcc" type="number" onChange="accInfoChanged();">
+        </li>
+    </ul>
+    <h2 dojoType="dojox.mobile.RoundRectCategory">Vehicle Information</h2>
+    <ul dojoType="dojox.mobile.RoundRectList">
+        <li dojoType="dojox.mobile.ListItem">
+            <label class="itemText" for="vMakeAcc" >Make:</label>
+            <input class="itemInput" id="vMakeAcc" type="text" onChange="accInfoChanged();" />
+        </li>
+        <li dojoType="dojox.mobile.ListItem">
+            <label class="itemText" for="vModelAcc" >Model:</label>
+            <input class="itemInput" id="vModelAcc" type="text" onChange="accInfoChanged();" />
+        </li>
+        <li dojoType="dojox.mobile.ListItem">
+            <label class="itemText" for="vYearAcc" >Year:</label>
+            <input class="itemInput" id="vYearAcc" type="number" onChange="accInfoChanged();" />
+        </li>
+        <li dojoType="dojox.mobile.ListItem">
+            <label class="itemText" for="vPlateAcc" >Plate:</label>
+            <input class="itemInput" id="vPlateAcc" type="text" onChange="accInfoChanged();" />
+        </li>
+        <li dojoType="dojox.mobile.ListItem">
+            <label class="itemText" for="vinAcc" >VIN:</label>
+            <input class="itemInput" id="vinAcc" type="number" onChange="accInfoChanged();" />
+        </li>
+    </ul>
+</div>
+<script type="text/javascript">
+
 // Global variable
 var accInfoChanged = false;
-
-/**
- * Entering accident info screen
- */
-function enteringAccInfo(moveTo, dir, transition, context, method) {
-    cur = 'accInfo';
-    back = 'accHelp';
-    loadAccidentInfo();
-}
-
-/**
- * Leaving accident info screen
- */
-function leavingAccInfo(moveTo, dir, transition, context, method) {
-    storeAccidentInfo();
-}
 
 /**
  * Set flag indicating that accident driver info has been modified
@@ -489,191 +532,169 @@ function accInfoChanged() {
     accInfoChanged = true;
 }
 </script>
-<div dojoType="dojox.mobile.View" id="accInfo">
-    <h1 dojoType="dojox.mobile.Heading" back="Accident" moveTo="accHelp">Driver</h1>
-    <h2 dojoType="dojox.mobile.RoundRectCategory">Other Driver Info</h2>
-    <ul dojoType="dojox.mobile.RoundRectList">
-        <li dojoType="dojox.mobile.ListItem"><label class="itemText" for="fNameAcc" >First Name:</label><input class="itemInput" id="fNameAcc" type="text" onChange="accInfoChanged();"/></li>
-        <li dojoType="dojox.mobile.ListItem"><label class="itemText" for="lNameAcc" >Last Name:</label><input class="itemInput" id="lNameAcc" type="text" onChange="accInfoChanged();"></li>
-        <li dojoType="dojox.mobile.ListItem"><label class="itemText" for="phoneAcc" >Phone:</label><input class="itemInput" id="phoneAcc" type="tel" onChange="accInfoChanged();"></li>
-        <li dojoType="dojox.mobile.ListItem"><label class="itemText" for="emailAcc" >Email:</label><input class="itemInput" id="emailAcc" type="email" onChange="accInfoChanged();"></li>
-        <li dojoType="dojox.mobile.ListItem"><label class="itemText" for="licenseNoAcc" >License #:</label><input class="itemInput" id="licenseNoAcc" type="number" onChange="accInfoChanged();"></li>
-        <li dojoType="dojox.mobile.ListItem"><label class="itemText" for="insurerAcc" >Insurer:</label><input class="itemInput" id="insurerAcc" type="number" onChange="accInfoChanged();"></li>
-        <li dojoType="dojox.mobile.ListItem"><label class="itemText" for="insurerNoAcc" >Phone:</label><input class="itemInput" id="insurerNoAcc" type="number" onChange="accInfoChanged();"></li>
-    </ul>
-    <h2 dojoType="dojox.mobile.RoundRectCategory">Vehicle Information</h2>
-    <ul dojoType="dojox.mobile.RoundRectList">
-        <li dojoType="dojox.mobile.ListItem"><label class="itemText" for="vMakeAcc" >Make:</label><input class="itemInput" id="vMakeAcc" type="text" onChange="accInfoChanged();" /></li>
-        <li dojoType="dojox.mobile.ListItem"><label class="itemText" for="vModelAcc" >Model:</label><input class="itemInput" id="vModelAcc" type="text" onChange="accInfoChanged();" /></li>
-        <li dojoType="dojox.mobile.ListItem"><label class="itemText" for="vYearAcc" >Year:</label><input class="itemInput" id="vYearAcc" type="number" onChange="accInfoChanged();" /></li>
-        <li dojoType="dojox.mobile.ListItem"><label class="itemText" for="vPlateAcc" >Plate:</label><input class="itemInput" id="vPlateAcc" type="text" onChange="accInfoChanged();" /></li>
-        <li dojoType="dojox.mobile.ListItem"><label class="itemText" for="vinAcc" >VIN:</label><input class="itemInput" id="vinAcc" type="number" onChange="accInfoChanged();" /></li>
-    </ul>
-</div>
 
 <!-- LOCATION ENTER PAGE -->
-<script type="text/javascript" charset="utf-8">
-// Global variables
+<div id="accLocation" dojoType="dojox.mobile.View">
+    <h1 dojoType="dojox.mobile.Heading" back="Accident" moveTo="accHelp" onClick="storeLocation();">Location</h1>
+    <ul dojoType="dojox.mobile.RoundRectList">
+        <li dojoType="dojox.mobile.ListItem">
+            <label class="itemText" for="streetLoc" >Street:</label>
+            <input class="itemInput" id="streetLoc" type="text" onChange="locationDataChanged();">
+        </li>
+        <li dojoType="dojox.mobile.ListItem">
+            <label class="itemText" for="cityLoc" >City:</label>
+            <input class="itemInput" id="cityLoc" type="text" onChange="locationDataChanged();">
+        </li>
+        <li dojoType="dojox.mobile.ListItem">
+            <label class="itemText" for="stateLoc" >State:</label>
+            <select class="itemInput" id="stateLoc" type="text" onChange="locationDataChanged();">
+                <option value="AL">Alabama</option>
+                <option value="AK">Alaska</option>
+                <option value="AZ">Arizona</option>
+                <option value="AR">Arkansas</option>
+                <option value="CA">California</option>
+                <option value="CO">Colorado</option>
+                <option value="CT">Connecticut</option>
+                <option value="DE">Delaware</option>
+                <option value="DC">District of Columbia</option>
+                <option value="FL">Florida</option>
+                <option value="GA">Georgia</option>
+                <option value="GU">Guam</option>
+                <option value="HI">Hawaii</option>
+                <option value="ID">Idaho</option>
+                <option value="IL">Illinois</option>
+                <option value="IN">Indiana</option>
+                <option value="IA">Iowa</option>
+                <option value="KS">Kansas</option>
+                <option value="KY">Kentucky</option>
+                <option value="LA">Louisiana</option>
+                <option value="ME">Maine</option>
+                <option value="MH">Marshall Islands</option>
+                <option value="MD">Maryland</option>
+                <option value="MA">Massachusetts</option>
+                <option value="MI">Michigan</option>
+                <option value="MN">Minnesota</option>
+                <option value="MS">Mississippi</option>
+                <option value="MO">Missouri</option>
+                <option value="MT">Montana</option>
+                <option value="NE">Nebraska</option>
+                <option value="NV">Nevada</option>
+                <option value="NH">New Hampshire</option>
+                <option value="NJ">New Jersey</option>
+                <option value="NM">New Mexico</option>
+                <option value="NY">New York</option>
+                <option value="NC">North Carolina</option>
+                <option value="ND">North Dakota</option>
+                <option value="OH">Ohio</option>
+                <option value="OK">Oklahoma</option>
+                <option value="OR">Oregon</option>
+                <option value="PA">Pennsylvania</option>
+                <option value="RI">Rhode Island</option>
+                <option value="SC">South Carolina</option>
+                <option value="SD">South Dakota</option>
+                <option value="TN">Tennessee</option>
+                <option value="TX">Texas</option>
+                <option value="UT">Utah</option>
+                <option value="VT">Vermont</option>
+                <option value="VA">Virginia</option>
+                <option value="WA">Washington</option>
+                <option value="WV">West Virginia</option>
+                <option value="WI">Wisconsin</option>
+                <option value="WY">Wyoming</option>
+        </select>
+        </li>
+        <li dojoType="dojox.mobile.ListItem">
+            <label class="itemText" for="zipLoc" >Zip:</label>
+            <input class="itemInput" id="zipLoc" type="number" size="5" onChange="locationDataChanged();">
+        </li>
+    </ul>
+    <center><button id="buttonLoc" dojoType1="dojox.mobile.Button" onclick="onButtonLocClicked();">Use Current Location</button></center>
+</div>
+<script type="text/javascript">
+
+//Global variables
 var locationChanged = false;
 
 /**
- * Entering accident location screen
- */
-function enteringAccLocation(moveTo, dir, transition, context, method) {
-    cur = 'accLocation';
-    back = 'accHelp';
-    loadLocation();
-}
-
-/**
- * Leaving accident location screen
- */
-function leavingAccLocation(moveTo, dir, transition, context, method) {
-    storeLocation();
-}
-
-/**
- * Set flag indicating that accident location has been modified
- */
-function locationChanged() {
-    console.log("locationChanged()");
+* Set flag indicating that accident location has been modified
+*/
+function locationDataChanged() {
+    console.log("locationDataChanged()");
     locationChanged = true;
 }
 
 /**
- * Use current location button clicked
- */
+* Use current location button clicked
+*/
 function onButtonLocClicked(e) {
     console.log("onButtonLocClicked()");
-    navigator.geolocation.getCurrentPosition(
-    function(loc) {
-        console.log("Current location: ("+loc.coords.latitude+","+loc.coords.longitude+")");
+    navigator.geolocation.getCurrentPosition(reverseGeocode,
+        function() {
+            console.log("Error retrieving current location.  Using hardcoded location for Las Vegas.");
+            reverseGeocode({coords: {latitude:36.175, longitude:-115.1363889}});
+        });
+}
 
-        // Do reverse geocode
-        var url = "http://maps.google.com/maps/api/geocode/json?latlng="+loc.coords.latitude+","+loc.coords.longitude+"&sensor=true";
-        var req = new XMLHttpRequest();
-        console.log("Reverse geocode: requested url: " + url);
-        req.open("GET", url, true);
-        req.onreadystatechange = function(){
-            //console.log("req.readyState = " + req.readyState);
-            if (req.readyState == 4) {
-                console.log("status=" + req.status + " length=" + req.responseText.length);
-                // only if "OK"
-                if (req.status == 200 || req.status == 0) {
-                    try {
-                        eval('var r='+req.responseText+';');
-                        var streetNum = '';
-                        var street = '';
-                        var city = '';
-                        var state = '';
-                        var zip = '';
-                        var a = r.results[0].address_components
-                        for (var i in a) {
-                            var l = a[i];
-                            if (l.types[0] == 'street_number') {
-                                streetNum = l.long_name;
-                            }
-                            if (l.types[0] == 'route') {
-                                street = l.long_name;
-                            }
-                            if (l.types[0] == 'locality') {
-                                city = l.long_name;
-                            }
-                            if (l.types[0] == 'administrative_area_level_1') {
-                                state = l.short_name;
-                            }
-                            if (l.types[0] == 'postal_code') {
-                                zip = l.long_name;
-                            }
+/**
+ * Find street address from lat,lng
+ */
+function reverseGeocode(loc) {
+    console.log("Current location: ("+loc.coords.latitude+","+loc.coords.longitude+")");
+
+    // Do reverse geocode
+    var url = "http://maps.google.com/maps/api/geocode/json?latlng="+loc.coords.latitude+","+loc.coords.longitude+"&sensor=true";
+    var req = new XMLHttpRequest();
+    console.log("Reverse geocode: requested url: " + url);
+    req.open("GET", url, true);
+    req.onreadystatechange = function(){
+        if (req.readyState == 4) {
+            console.log("status=" + req.status + " length=" + req.responseText.length);
+            // only if "OK"
+            if (req.status == 200 || req.status == 0) {
+                try {
+                    eval('var r='+req.responseText+';');
+                    var streetNum = '';
+                    var street = '';
+                    var city = '';
+                    var state = '';
+                    var zip = '';
+                    var a = r.results[0].address_components;
+                    for (var i in a) {
+                        var l = a[i];
+                        if (l.types[0] == 'street_number') {
+                            streetNum = l.long_name;
                         }
-                        console.log(" streetNum="+streetNum+" street="+street+" city="+city+" state="+state+" zip="+zip);
-                        dojo.byId("streetLoc").value = streetNum+" " + street;
-                        dojo.byId("cityLoc").value = city;
-                        dojo.byId("stateLoc").value = state;
-                        dojo.byId("zipLoc").value = zip;
-                        locationChanged();
-                    } catch (e) {
-                        console.log("Error evaluating geocode json response: "+e);
+                        if (l.types[0] == 'route') {
+                            street = l.long_name;
+                        }
+                        if (l.types[0] == 'locality') {
+                            city = l.long_name;
+                        }
+                        if (l.types[0] == 'administrative_area_level_1') {
+                            state = l.short_name;
+                        }
+                        if (l.types[0] == 'postal_code') {
+                            zip = l.long_name;
+                        }
                     }
-                }
-                else {
-                    console.log("Error: Unexpected response: " + req.responseText);
+                    console.log(" streetNum="+streetNum+" street="+street+" city="+city+" state="+state+" zip="+zip);
+                    dojo.byId("streetLoc").value = streetNum+" " + street;
+                    dojo.byId("cityLoc").value = city;
+                    dojo.byId("stateLoc").value = state;
+                    dojo.byId("zipLoc").value = zip;
+                    locationDataChanged();
+                } catch (e) {
+                    console.log("Error evaluating geocode json response: "+e);
                 }
             }
-        };
-        req.send();
-    },
-    function() {
-        console.log("Error retrieving current location.");
-    });
+            else {
+                console.log("Error: Unexpected response: " + req.responseText);
+            }
+        }
+    };
+    req.send();
 }
 </script>
-<div id="accLocation" dojoType="dojox.mobile.View">
-    <h1 dojoType="dojox.mobile.Heading" back="Accident" moveTo="accHelp">Location</h1>
-    <ul dojoType="dojox.mobile.RoundRectList">
-        <li dojoType="dojox.mobile.ListItem"><label class="itemText" for="streetLoc" >Street:</label><input class="itemInput" id="streetLoc" type="text" onChange="locationChanged();"></li>
-        <li dojoType="dojox.mobile.ListItem"><label class="itemText" for="cityLoc" >City:</label><input class="itemInput" id="cityLoc" type="text" onChange="locationChanged();"></li>
-        <li dojoType="dojox.mobile.ListItem"><label class="itemText" for="stateLoc" >State:</label>
-            <select class="itemInput" id="stateLoc" type="text" onChange="locationChanged();">
-            <option value="AL">Alabama</option>
-            <option value="AK">Alaska</option>
-            <option value="AZ">Arizona</option>
-            <option value="AR">Arkansas</option>
-            <option value="CA">California</option>
-            <option value="CO">Colorado</option>
-            <option value="CT">Connecticut</option>
-            <option value="DE">Delaware</option>
-            <option value="DC">District of Columbia</option>
-            <option value="FL">Florida</option>
-            <option value="GA">Georgia</option>
-            <option value="GU">Guam</option>
-            <option value="HI">Hawaii</option>
-            <option value="ID">Idaho</option>
-            <option value="IL">Illinois</option>
-            <option value="IN">Indiana</option>
-            <option value="IA">Iowa</option>
-            <option value="KS">Kansas</option>
-            <option value="KY">Kentucky</option>
-            <option value="LA">Louisiana</option>
-            <option value="ME">Maine</option>
-            <option value="MH">Marshall Islands</option>
-            <option value="MD">Maryland</option>
-            <option value="MA">Massachusetts</option>
-            <option value="MI">Michigan</option>
-            <option value="MN">Minnesota</option>
-            <option value="MS">Mississippi</option>
-            <option value="MO">Missouri</option>
-            <option value="MT">Montana</option>
-            <option value="NE">Nebraska</option>
-            <option value="NV">Nevada</option>
-            <option value="NH">New Hampshire</option>
-            <option value="NJ">New Jersey</option>
-            <option value="NM">New Mexico</option>
-            <option value="NY">New York</option>
-            <option value="NC">North Carolina</option>
-            <option value="ND">North Dakota</option>
-            <option value="OH">Ohio</option>
-            <option value="OK">Oklahoma</option>
-            <option value="OR">Oregon</option>
-            <option value="PA">Pennsylvania</option>
-            <option value="RI">Rhode Island</option>
-            <option value="SC">South Carolina</option>
-            <option value="SD">South Dakota</option>
-            <option value="TN">Tennessee</option>
-            <option value="TX">Texas</option>
-            <option value="UT">Utah</option>
-            <option value="VT">Vermont</option>
-            <option value="VA">Virginia</option>
-            <option value="WA">Washington</option>
-            <option value="WV">West Virginia</option>
-            <option value="WI">Wisconsin</option>
-            <option value="WY">Wyoming</option>
-        </select>
-        </li>
-        <li dojoType="dojox.mobile.ListItem"><label class="itemText" for="zipLoc" >Zip:</label><input class="itemInput" id="zipLoc" type="number" size="5" onChange="locationChanged();"></li>
-    </ul>
-    <center><button id="buttonLoc" dojoType1="dojox.mobile.Button" onclick="onButtonLocClicked();">Use Current Location</button></center>
-</div>
 
 </body>
 </html>
