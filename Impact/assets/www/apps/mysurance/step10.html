@@ -19,6 +19,8 @@
 dojo.require("dojox.mobile.parser");
 dojo.require("dojox.mobile");
 
+var mysurance = {};
+
 /**
  * Called when initial web page is loaded
  */
@@ -28,6 +30,27 @@ function onBodyLoad()
     
     // Listen for PhoneGap framework to finish init
     document.addEventListener("deviceready",onDeviceReady,false);
+
+    // Listen for back button
+    //document.addEventListener("backbutton", backPressed,false);
+
+    // Hook transitions
+    try {
+        dijit.byId('home').onBeforeTransitionIn = enteringHome;
+        dijit.byId('home').onBeforeTransitionOut = leavingHome;
+        dijit.byId('myInfo').onBeforeTransitionIn = enteringMyInfo;
+        dijit.byId('myInfo').onBeforeTransitionOut = leavingMyInfo;
+        dijit.byId('accHelp').onBeforeTransitionIn = enteringAccHelp;
+        dijit.byId('addVehicle').onBeforeTransitionIn = enteringAddVehicle;
+        dijit.byId('addVehicle').onBeforeTransitionOut = leavingAddVehicle;
+        dijit.byId('accInfo').onBeforeTransitionIn = enteringAccInfo;
+        dijit.byId('accInfo').onBeforeTransitionOut = leavingAccInfo;
+        dijit.byId('accLocation').onBeforeTransitionIn = enteringAccLocation;
+        dijit.byId('accLocation').onBeforeTransitionOut = leavingAccLocation;
+        dijit.byId('accPhotos').onBeforeTransitionIn = enteringAccPhotos;
+    } catch (e) {
+        console.log("  - error hooking transitions: "+e);
+    }
 }
 
 /**
@@ -38,6 +61,131 @@ function onDeviceReady() {
     // Open database for our app
     getDatabase();
 }
+
+/**
+ * Entering home screen
+ */
+function enteringHome(moveTo, dir, transition, context, method) {
+    //console.log("leavingHome(moveTo="+moveTo+" dir="+dir+" transition="+transition+" method="+method);
+    //window.BackButton.reset();
+    document.removeEventListener("backbutton");
+    mysurance.cur = 'home';
+    mysurance.back = null;
+}
+
+/**
+ * Leaving home screen
+ */
+function leavingHome(moveTo, dir, transition, context, method) {
+    //console.log("leavingHome(moveTo="+moveTo+" dir="+dir+" transition="+transition+" method="+method);
+    //window.BackButton.override();
+    // Listen for back button
+    document.addEventListener("backbutton", backPressed,false);
+}
+
+/**
+ * Entering my info screen
+ */
+function enteringMyInfo(moveTo, dir, transition, context, method) {
+    //console.log("enteringMyInfo(moveTo="+moveTo+" dir="+dir+" transition="+transition+" method="+method);
+    mysurance.cur = 'myInfo';
+    mysurance.back = 'home';
+}
+
+/**
+ * Leaving my info screen
+ */
+function leavingMyInfo(moveTo, dir, transition, context, method) {
+    //console.log("leavingMyInfo(moveTo="+moveTo+" dir="+dir+" transition="+transition+" method="+method);
+    //storeProfile(true);
+}
+
+/**
+ * Entering accident toolkit screen
+ */
+function enteringAccHelp(moveTo, dir, transition, context, method) {
+    //console.log("enteringAccHelp(moveTo="+moveTo+" dir="+dir+" transition="+transition+" method="+method);
+    mysurance.cur = 'accHelp';
+    mysurance.back = 'home';
+}
+
+/**
+ * Entering add vehicle screen
+ */
+function enteringAddVehicle(moveTo, dir, transition, context, method) {
+    //console.log("enteringAddVehicle(moveTo="+moveTo+" dir="+dir+" transition="+transition+" method="+method);
+    mysurance.cur = 'addVehicle';
+    mysurance.back = 'myInfo';
+}
+
+/**
+ * Leaving add vehicle screen
+ */
+function leavingAddVehicle(moveTo, dir, transition, context, method) {
+    //console.log("leavingAddVehicle(moveTo="+moveTo+" dir="+dir+" transition="+transition+" method="+method);
+    //storeVehicle();
+    //loadProfile(true);
+    //clearVehicleForm();
+}
+
+/**
+ * Entering accident info screen
+ */
+function enteringAccInfo(moveTo, dir, transition, context, method) {
+    //console.log("enteringAccInfo(moveTo="+moveTo+" dir="+dir+" transition="+transition+" method="+method);
+    mysurance.cur = 'accInfo';
+    mysurance.back = 'accHelp';
+    //loadAccidentInfo();
+}
+
+/**
+ * Leaving accident info screen
+ */
+function leavingAccInfo(moveTo, dir, transition, context, method) {
+    //console.log("leavingAccLocation(moveTo="+moveTo+" dir="+dir+" transition="+transition+" method="+method);
+    //storeAccidentInfo();
+}
+
+/**
+ * Entering accident location screen
+ */
+function enteringAccLocation(moveTo, dir, transition, context, method) {
+    //console.log("enteringAccLocation(moveTo="+moveTo+" dir="+dir+" transition="+transition+" method="+method);
+    mysurance.cur = 'accLocation';
+    mysurance.back = 'accHelp';
+    //loadLocation();
+}
+
+/**
+ * Leaving accident location screen
+ */
+function leavingAccLocation(moveTo, dir, transition, context, method) {
+    //console.log("leavingAccLocation(moveTo="+moveTo+" dir="+dir+" transition="+transition+" method="+method);
+    //storeLocation();
+}
+
+/**
+ * Entering accident photo screen
+ */
+function enteringAccPhotos(moveTo, dir, transition, context, method) {
+    //console.log("enteringAccPhotos(moveTo="+moveTo+" dir="+dir+" transition="+transition+" method="+method);
+    mysurance.cur = 'accPhotos';
+    mysurance.back = 'accHelp';
+    //loadPhotos();
+}
+
+/**
+ * Back button was pressed. Show previous view.
+ */
+function backPressed(e) {
+    console.log("backPressed: "); //+dumpObj(e, '', ' ', 1));
+    //console.log (" - cur="+mysurance.cur+" going to back="+mysurance.back);
+    if (mysurance.back && mysurance.cur) {
+        el = dijit.byId(mysurance.cur);
+        el.performTransition(mysurance.back, -1, 'slide');
+    }
+}
+
 </script>
 </head>
 <body onload="onBodyLoad();">
@@ -215,7 +363,7 @@ function serverAddressChanged(el) {
             <input class="itemInput" id="licenseNo" type="number" onChange="userProfileChanged();" />
         </li>
         <li dojoType="dojox.mobile.ListItem">
-            <button id="profileBtn" onclick="uploadProfile();">Upload Profile</button>
+            <button id="profileBtn" onclick="uploadProfile();" dojoType="dojox.mobile.RoundRect">Upload Profile</button>
         </li>
     </ul>
     <input type="hidden" id="profileId" />
@@ -363,7 +511,7 @@ function uploadProfile() {
             <input class="itemInput" id="vin" type="number" onChange="vehicleDataChanged();"/>
         </li>
         <li dojoType="dojox.mobile.ListItem">
-            <button id="profileBtn" dojoType1="dojox.mobile.Button" onclick="uploadVehicle();">Upload Vehicle</button>
+            <button id="vehicleBtn" onclick="uploadVehicle();" dojoType="dojox.mobile.RoundRect">Upload Vehicle</button>
         </li>
     </ul>
     <input type="hidden" id="vehicleId" /><input type="hidden" id="ownerId" />
@@ -530,6 +678,330 @@ var accInfoChanged = false;
 function accInfoChanged() {
     console.log("accInfoChanged()");
     accInfoChanged = true;
+}
+</script>
+
+<!-- LOCATION ENTER PAGE -->
+<div id="accLocation" dojoType="dojox.mobile.View">
+    <h1 dojoType="dojox.mobile.Heading" back="Accident" moveTo="accHelp" onClick="storeLocation();">Location</h1>
+    <ul dojoType="dojox.mobile.RoundRectList">
+        <li dojoType="dojox.mobile.ListItem">
+            <label class="itemText" for="streetLoc" >Street:</label>
+            <input class="itemInput" id="streetLoc" type="text" onChange="locationDataChanged();">
+        </li>
+        <li dojoType="dojox.mobile.ListItem">
+            <label class="itemText" for="cityLoc" >City:</label>
+            <input class="itemInput" id="cityLoc" type="text" onChange="locationDataChanged();">
+        </li>
+        <li dojoType="dojox.mobile.ListItem">
+            <label class="itemText" for="stateLoc" >State:</label>
+            <select class="itemInput" id="stateLoc" type="text" onChange="locationDataChanged();">
+                <option value="AL">Alabama</option>
+                <option value="AK">Alaska</option>
+                <option value="AZ">Arizona</option>
+                <option value="AR">Arkansas</option>
+                <option value="CA">California</option>
+                <option value="CO">Colorado</option>
+                <option value="CT">Connecticut</option>
+                <option value="DE">Delaware</option>
+                <option value="DC">District of Columbia</option>
+                <option value="FL">Florida</option>
+                <option value="GA">Georgia</option>
+                <option value="GU">Guam</option>
+                <option value="HI">Hawaii</option>
+                <option value="ID">Idaho</option>
+                <option value="IL">Illinois</option>
+                <option value="IN">Indiana</option>
+                <option value="IA">Iowa</option>
+                <option value="KS">Kansas</option>
+                <option value="KY">Kentucky</option>
+                <option value="LA">Louisiana</option>
+                <option value="ME">Maine</option>
+                <option value="MH">Marshall Islands</option>
+                <option value="MD">Maryland</option>
+                <option value="MA">Massachusetts</option>
+                <option value="MI">Michigan</option>
+                <option value="MN">Minnesota</option>
+                <option value="MS">Mississippi</option>
+                <option value="MO">Missouri</option>
+                <option value="MT">Montana</option>
+                <option value="NE">Nebraska</option>
+                <option value="NV">Nevada</option>
+                <option value="NH">New Hampshire</option>
+                <option value="NJ">New Jersey</option>
+                <option value="NM">New Mexico</option>
+                <option value="NY">New York</option>
+                <option value="NC">North Carolina</option>
+                <option value="ND">North Dakota</option>
+                <option value="OH">Ohio</option>
+                <option value="OK">Oklahoma</option>
+                <option value="OR">Oregon</option>
+                <option value="PA">Pennsylvania</option>
+                <option value="RI">Rhode Island</option>
+                <option value="SC">South Carolina</option>
+                <option value="SD">South Dakota</option>
+                <option value="TN">Tennessee</option>
+                <option value="TX">Texas</option>
+                <option value="UT">Utah</option>
+                <option value="VT">Vermont</option>
+                <option value="VA">Virginia</option>
+                <option value="WA">Washington</option>
+                <option value="WV">West Virginia</option>
+                <option value="WI">Wisconsin</option>
+                <option value="WY">Wyoming</option>
+        </select>
+        </li>
+        <li dojoType="dojox.mobile.ListItem">
+            <label class="itemText" for="zipLoc" >Zip:</label>
+            <input class="itemInput" id="zipLoc" type="number" size="5" onChange="locationDataChanged();">
+        </li>
+    </ul>
+    <center><button id="buttonLoc" onclick="onButtonLocClicked();" dojoType="dojox.mobile.RoundRect">Use Current Location</button></center>
+</div>
+<script type="text/javascript">
+
+//Global variables
+var locationChanged = false;
+
+/**
+* Set flag indicating that accident location has been modified
+*/
+function locationDataChanged() {
+    console.log("locationDataChanged()");
+    locationChanged = true;
+}
+
+/**
+* Use current location button clicked
+*/
+function onButtonLocClicked(e) {
+    console.log("onButtonLocClicked()");
+    navigator.geolocation.getCurrentPosition(reverseGeocode,
+        function() {
+            console.log("Error retrieving current location.  Using hardcoded location for Las Vegas.");
+            reverseGeocode({coords: {latitude:36.175, longitude:-115.1363889}});
+        });
+}
+
+/**
+ * Find street address from lat,lng
+ */
+function reverseGeocode(loc) {
+    console.log("Current location: ("+loc.coords.latitude+","+loc.coords.longitude+")");
+
+    // Do reverse geocode
+    var url = "http://maps.google.com/maps/api/geocode/json?latlng="+loc.coords.latitude+","+loc.coords.longitude+"&sensor=true";
+    var req = new XMLHttpRequest();
+    console.log("Reverse geocode: requested url: " + url);
+    req.open("GET", url, true);
+    req.onreadystatechange = function(){
+        if (req.readyState == 4) {
+            console.log("status=" + req.status + " length=" + req.responseText.length);
+            // only if "OK"
+            if (req.status == 200 || req.status == 0) {
+                try {
+                    eval('var r='+req.responseText+';');
+                    var streetNum = '';
+                    var street = '';
+                    var city = '';
+                    var state = '';
+                    var zip = '';
+                    var a = r.results[0].address_components;
+                    for (var i in a) {
+                        var l = a[i];
+                        if (l.types[0] == 'street_number') {
+                            streetNum = l.long_name;
+                        }
+                        if (l.types[0] == 'route') {
+                            street = l.long_name;
+                        }
+                        if (l.types[0] == 'locality') {
+                            city = l.long_name;
+                        }
+                        if (l.types[0] == 'administrative_area_level_1') {
+                            state = l.short_name;
+                        }
+                        if (l.types[0] == 'postal_code') {
+                            zip = l.long_name;
+                        }
+                    }
+                    console.log(" streetNum="+streetNum+" street="+street+" city="+city+" state="+state+" zip="+zip);
+                    dojo.byId("streetLoc").value = streetNum+" " + street;
+                    dojo.byId("cityLoc").value = city;
+                    dojo.byId("stateLoc").value = state;
+                    dojo.byId("zipLoc").value = zip;
+                    locationDataChanged();
+                } catch (e) {
+                    console.log("Error evaluating geocode json response: "+e);
+                }
+            }
+            else {
+                console.log("Error: Unexpected response: " + req.responseText);
+            }
+        }
+    };
+    req.send();
+}
+</script>
+
+<!-- ACCIDENT PHOTOS PAGE -->
+<div dojoType="dojox.mobile.View" id="accPhotos">
+    <h1 dojoType="dojox.mobile.Heading" back="Accident" moveTo="accHelp">Photos</h1>
+    <div class="text">Please take photos from a safe location.</div>
+    <div dojoType="dojox.mobile.RoundRect">
+        <table width="100%" style="cell-padding: 5px;">
+            <tr>
+                <td width="50%" align="center">Crash Scene</td>
+                <td width="50%" align="center">Your Car</td>
+            </tr>
+            <tr>
+                <td height="150" valign="middle" align="center" style="background: blue;" onclick="takePhoto(0);">
+                    <img id="photo0" src="" style="width: 90%; visibility: hidden; display: none;" />
+                    <span id="photo0-text">Click to take picture</span>
+                </td>
+                <td height="150" valign="middle" align="center" style="background: blue;" onclick="takePhoto(1);">
+                    <img id="photo1" src="" style="width: 90%; visibility: hidden; display: none;" />
+                    <span id="photo1-text">Click to take picture</span>
+                </td>
+            </tr>
+            <tr>
+                <td width="50%" align="center">
+                    <button id="photoBtn0" dojoType="dojox.mobile.RoundRect" onclick="getPhoto(0);">Send Photo</button>
+                </td>
+                <td width="50%" align="center">
+                    <button id="photoBtn1" dojoType="dojox.mobile.RoundRect" onclick="getPhoto(1);">Send Photo</button>
+                </td>
+            </tr>
+            <tr>
+                <td align="center">Other Car</td>
+                <td align="center">License Plate</td>
+            </tr>
+            <tr>
+                <td height="150" valign="middle" align="center" style="background: blue;" onclick="takePhoto(2);">
+                    <img id="photo2" src="" style="width: 90%; visibility: hidden; display: none;" />
+                    <span id="photo2-text">Click to take picture</span>
+                </td>
+                <td height="150" valign="middle" align="center" style="background: blue;" onclick="takePhoto(3);">
+                    <img id="photo3" src="" style="width: 90%; visibility: hidden; display: none;" />
+                    <span id="photo3-text">Click to take picture</span>
+                </td>
+            </tr>
+            <tr>
+                <td width="50%" align="center">
+                    <button id="photoBtn2" dojoType="dojox.mobile.RoundRect" onclick="getPhoto(2);">Send Photo</button>
+                </td>
+                <td width="50%" align="center">
+                    <button id="photoBtn3" dojoType="dojox.mobile.RoundRect" onclick="getPhoto(3);">Send Photo</button>
+                </td>
+            </tr>
+        </table>
+    </div>
+</div>
+<script type="text/javascript">
+
+// Global variable
+var photoId = null;
+
+/**
+ * Take photo
+ *
+ * @param id        The photo id
+ */
+function takePhoto(id) {
+    console.log("takePhoto("+id+")");
+    photoId = id;
+    navigator.camera.getPicture(photoSuccess, photoError, { quality: 20, destinationType: Camera.DestinationType.FILE_URI });
+};
+
+/**
+ * Callback for successful photo taken
+ *
+ * @param imageData
+ */
+function photoSuccess(imageData) {
+    console.log("photoSuccess() for photo "+photoId);
+    displayPhoto(photoId, imageData);
+    try {
+        storePhoto(photoId, imageData);
+    }
+    catch (e) {
+        console.log("Error saving photo to database: " + e);
+    }
+    photoId = "";
+};
+
+/**
+ * Display photo
+ *
+ * @param id
+ * @param imageData
+ */
+function displayPhoto(id, imageData) {
+    console.log("displayPhoto("+id+","+imageData.length+")");
+    var el = document.getElementById("photo"+id+"-text");
+    if (imageData) {
+        el.style.visibility = 'hidden';
+        el.style.display = 'none';
+    }
+    else {
+        el.style.visibility = 'visible';
+        el.style.display = 'block';
+    }
+
+    var img = document.getElementById("photo"+id);
+    if (imageData) {
+        img.style.height = "150px";
+        img.style.visibility = 'visible';
+        img.style.display = 'block';
+        img.src = imageData;
+    }
+    else {
+        img.style.height = "150px";
+        img.style.visibility = 'hidden';
+        img.style.display = 'none';
+        img.src = "";
+    }
+};
+
+/**
+ * Callback for camera error
+ *
+ * @param error
+ */
+function photoError(error) {
+    console.log("photoError() for photo "+photoId+": " + error);
+};
+
+/**
+ * Upload photo
+ *
+ * @param id
+ */
+function uploadPhoto(id, imageURL) {
+    console.log(imageURL);
+    var options = new FileUploadOptions();
+    options.fileKey="file";
+    options.fileName="photo" + id + ".jpg";
+    options.mimeType="image/jpeg";
+    
+    var ft = new FileTransfer();
+    ft.upload(imageURL, "http://" + serverAddress + "/Impact2011Demo/rest/upload", uploadSuccess, uploadError, options);
+}
+
+/**
+ * Callback for successful upload
+ */
+function uploadSuccess() {
+    alert("You photo has been uploaded to the server");
+}
+
+/**
+ * Callback for unsuccessful upload
+ * 
+ * @param error
+ */
+function uploadError(error) {
+    console.log("uploadError() for photo: " + error);
 }
 </script>
 
